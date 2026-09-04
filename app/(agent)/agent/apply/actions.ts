@@ -70,7 +70,7 @@ export async function submitAgentApplication(
     // --------------------------------------------------
 
     const { error: insertError } = await supabase
-      .from("agents")
+      .from("agency")
       .insert({
         user_id: user.id,
         agency_name: validation.data.agencyName,
