@@ -4,6 +4,8 @@ import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
+import { Suspense } from "react";
+import NavBarSkeleton from "@/components/nav-bar-skeleton";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -11,8 +13,8 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Next.js and Supabase Starter Kit",
-  description: "The fastest way to build apps with Next.js and Supabase",
+  title: "Property Finder",
+  description: "The Property Finder is a web application that allows users to search for properties and view property details.",
 };
 
 const geistSans = Geist({
@@ -35,7 +37,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+        <Suspense fallback={<NavBarSkeleton />}>
           <Navbar />
+        </Suspense>
           {children}
           <Footer />
         </ThemeProvider>

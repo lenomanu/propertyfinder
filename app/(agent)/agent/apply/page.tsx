@@ -1,5 +1,8 @@
+export const instant = false;
+
 import React from 'react'
 import { redirect } from "next/navigation";
+
 
 import { createClient } from "@/lib/supabase/server";
 import AgencyApplicationForm from './agency-application-form'
