@@ -10,8 +10,8 @@ export async function Navbar() {
   const supabase = await createClient();
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
 
   return (
@@ -24,7 +24,7 @@ export async function Navbar() {
 
         <div className="flex items-center gap-3">
     
-          {user ? <LogoutButton /> :  <Button className="hidden sm:inline-flex" variant="outline">
+          {session ? <LogoutButton /> :  <Button className="hidden sm:inline-flex" variant="outline">
             Sign In
             
           </Button>}
