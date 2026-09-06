@@ -1,8 +1,9 @@
 import React from 'react'
+import { UsersPage } from '../components/user-page'
 
 function Users() {
   return (
-    <div>Users</div>
+    <UsersPage/>
   )
 }
 
