@@ -1,7 +1,9 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { UserRole } from "../types";
+
 
 
 const ROLES: UserRole[] = [
@@ -9,6 +11,12 @@ const ROLES: UserRole[] = [
   "agent",
   "admin",
 ];
+
+export type UpdateUserState = {
+  success: boolean;
+  error?: string;
+  message?: string;
+};
 
 function nullable(
   value: FormDataEntryValue | null
@@ -19,11 +27,14 @@ function nullable(
 }
 
 export async function updateUser(
+  previousState: UpdateUserState,
   formData: FormData
-) {
+): Promise<UpdateUserState> {
   const supabase = await createClient();
 
-  // Check logged-in user
+  // ----------------------------------------
+  // Check authentication
+  // ----------------------------------------
 
   const {
     data: { user: authUser },
@@ -36,7 +47,9 @@ export async function updateUser(
     };
   }
 
-  // Get submitted values
+  // ----------------------------------------
+  // Get form values
+  // ----------------------------------------
 
   const targetId = String(
     formData.get("id") ?? ""
@@ -46,7 +59,9 @@ export async function updateUser(
     formData.get("role") ?? ""
   ) as UserRole;
 
-  // Validate
+  // ----------------------------------------
+  // Validate user ID
+  // ----------------------------------------
 
   if (!targetId) {
     return {
@@ -55,6 +70,10 @@ export async function updateUser(
     };
   }
 
+  // ----------------------------------------
+  // Validate role
+  // ----------------------------------------
+
   if (!ROLES.includes(role)) {
     return {
       success: false,
@@ -62,7 +81,9 @@ export async function updateUser(
     };
   }
 
+  // ----------------------------------------
   // Update user
+  // ----------------------------------------
 
   const { error } = await supabase
     .from("users")
@@ -91,6 +112,10 @@ export async function updateUser(
     })
     .eq("id", targetId);
 
+  // ----------------------------------------
+  // Handle database error
+  // ----------------------------------------
+
   if (error) {
     return {
       success: false,
@@ -98,8 +123,18 @@ export async function updateUser(
     };
   }
 
+  // ----------------------------------------
+  // Refresh cached users page
+  // ----------------------------------------
+
+  revalidatePath("/admin/users");
+
+  // ----------------------------------------
+  // Return success
+  // ----------------------------------------
+
   return {
     success: true,
-    erorr: ''
+    message: "User updated successfully.",
   };
 }

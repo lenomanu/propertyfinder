@@ -1,6 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import {
+  useActionState,
+  useEffect,
+  useState,
+} from "react";
+
+import { useRouter } from "next/navigation";
+import { useFormStatus } from "react-dom";
+
+import { AppUser } from "../types";
 
 
 
@@ -15,39 +24,145 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { updateUser } from "./user-actions";
-import { AppUser, UserRole } from "../types";
+import { updateUser, UpdateUserState } from "./user-actions";
+
+
+// ==========================================
+// TYPES
+// ==========================================
 
 type Props = {
   user: AppUser | null;
 };
 
-export function UserForm({ user }: Props) {
-  const [fullName, setFullName] = useState(
-    user?.full_name ?? ""
-  );
 
-  const [email, setEmail] = useState(
-    user?.email ?? ""
-  );
+// ==========================================
+// INITIAL ACTION STATE
+// ==========================================
 
-  const [phone, setPhone] = useState(
-    user?.phone ?? ""
-  );
+const initialState: UpdateUserState = {
+  success: false,
+};
 
-  const [avatarUrl, setAvatarUrl] = useState(
-    user?.avatar_url ?? ""
-  );
 
-  const [agencyId, setAgencyId] = useState(
-    user?.agency_id ?? ""
-  );
+// ==========================================
+// SUBMIT BUTTON
+// ==========================================
 
-  const [role, setRole] = useState<UserRole>(
-    user?.role ?? "user"
-  );
+function SubmitButton() {
+  const { pending } = useFormStatus();
 
-  const [message, setMessage] = useState("");
+  return (
+    <Button
+      type="submit"
+      className="w-full"
+      disabled={pending}
+    >
+      {pending
+        ? "Updating..."
+        : "Save changes"}
+    </Button>
+  );
+}
+
+
+// ==========================================
+// USER FORM
+// ==========================================
+
+export function UserForm({
+  user,
+}: Props) {
+  const router = useRouter();
+
+  // ----------------------------------------
+  // Server Action state
+  // ----------------------------------------
+
+  const [state, formAction] =
+    useActionState(
+      updateUser,
+      initialState
+    );
+
+
+  // ----------------------------------------
+  // Form state
+  // ----------------------------------------
+
+  const [fullName, setFullName] =
+    useState("");
+
+  const [email, setEmail] =
+    useState("");
+
+  const [phone, setPhone] =
+    useState("");
+
+  const [avatarUrl, setAvatarUrl] =
+    useState("");
+
+  const [agencyId, setAgencyId] =
+    useState("");
+
+  const [role, setRole] =
+    useState<
+      "user" | "admin" | "agent"
+    >("user");
+
+
+  // ----------------------------------------
+  // Load selected user into form
+  // ----------------------------------------
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    setFullName(
+      user.full_name ?? ""
+    );
+
+    setEmail(
+      user.email ?? ""
+    );
+
+    setPhone(
+      user.phone ?? ""
+    );
+
+    setAvatarUrl(
+      user.avatar_url ?? ""
+    );
+
+    setAgencyId(
+      user.agency_id ?? ""
+    );
+
+    setRole(user.role);
+  }, [user]);
+
+
+  // ----------------------------------------
+  // Refresh page after successful update
+  // ----------------------------------------
+
+  useEffect(() => {
+    if (!state.success) {
+      return;
+    }
+
+    router.refresh();
+  }, [
+    state.success,
+    router,
+  ]);
+
+
+  // ----------------------------------------
+  // No user selected
+  // ----------------------------------------
 
   if (!user) {
     return (
@@ -59,20 +174,20 @@ export function UserForm({ user }: Props) {
     );
   }
 
-  async function handleSubmit(formData: FormData) {
-    setMessage("");
 
-    const result = await updateUser(formData);
-
-  
-  }
+  // ========================================
+  // RENDER
+  // ========================================
 
   return (
     <form
-      action={handleSubmit}
+      action={formAction}
       className="space-y-5 rounded-lg border p-5"
     >
-      {/* Header */}
+
+      {/* ================================== */}
+      {/* HEADER */}
+      {/* ================================== */}
 
       <div>
         <h2 className="text-lg font-semibold">
@@ -80,19 +195,20 @@ export function UserForm({ user }: Props) {
         </h2>
 
         <p className="text-sm text-muted-foreground">
-          Account identifiers are read-only.
+          Update the user's account information.
         </p>
       </div>
 
-      {/* Hidden ID */}
+
+      {/* ================================== */}
+      {/* USER ID */}
+      {/* ================================== */}
 
       <input
         type="hidden"
         name="id"
         value={user.id}
       />
-
-      {/* ID */}
 
       <div className="space-y-2">
         <Label htmlFor="id">
@@ -107,7 +223,10 @@ export function UserForm({ user }: Props) {
         />
       </div>
 
-      {/* Created At */}
+
+      {/* ================================== */}
+      {/* CREATED DATE */}
+      {/* ================================== */}
 
       <div className="space-y-2">
         <Label htmlFor="created_at">
@@ -124,7 +243,10 @@ export function UserForm({ user }: Props) {
         />
       </div>
 
-      {/* Full Name */}
+
+      {/* ================================== */}
+      {/* FULL NAME */}
+      {/* ================================== */}
 
       <div className="space-y-2">
         <Label htmlFor="full_name">
@@ -136,12 +258,17 @@ export function UserForm({ user }: Props) {
           name="full_name"
           value={fullName}
           onChange={(event) =>
-            setFullName(event.target.value)
+            setFullName(
+              event.target.value
+            )
           }
         />
       </div>
 
-      {/* Email */}
+
+      {/* ================================== */}
+      {/* EMAIL */}
+      {/* ================================== */}
 
       <div className="space-y-2">
         <Label htmlFor="email">
@@ -154,12 +281,17 @@ export function UserForm({ user }: Props) {
           type="email"
           value={email}
           onChange={(event) =>
-            setEmail(event.target.value)
+            setEmail(
+              event.target.value
+            )
           }
         />
       </div>
 
-      {/* Phone */}
+
+      {/* ================================== */}
+      {/* PHONE */}
+      {/* ================================== */}
 
       <div className="space-y-2">
         <Label htmlFor="phone">
@@ -171,12 +303,17 @@ export function UserForm({ user }: Props) {
           name="phone"
           value={phone}
           onChange={(event) =>
-            setPhone(event.target.value)
+            setPhone(
+              event.target.value
+            )
           }
         />
       </div>
 
-      {/* Avatar */}
+
+      {/* ================================== */}
+      {/* AVATAR URL */}
+      {/* ================================== */}
 
       <div className="space-y-2">
         <Label htmlFor="avatar_url">
@@ -188,12 +325,17 @@ export function UserForm({ user }: Props) {
           name="avatar_url"
           value={avatarUrl}
           onChange={(event) =>
-            setAvatarUrl(event.target.value)
+            setAvatarUrl(
+              event.target.value
+            )
           }
         />
       </div>
 
-      {/* Agency */}
+
+      {/* ================================== */}
+      {/* AGENCY ID */}
+      {/* ================================== */}
 
       <div className="space-y-2">
         <Label htmlFor="agency_id">
@@ -205,30 +347,43 @@ export function UserForm({ user }: Props) {
           name="agency_id"
           value={agencyId}
           onChange={(event) =>
-            setAgencyId(event.target.value)
+            setAgencyId(
+              event.target.value
+            )
           }
         />
       </div>
 
-      {/* Role */}
+
+      {/* ================================== */}
+      {/* ROLE */}
+      {/* ================================== */}
 
       <div className="space-y-2">
-        <Label>
+        <Label htmlFor="role">
           Role
         </Label>
 
         <Select
           name="role"
           value={role}
-          onValueChange={(value) =>
-            setRole(value as UserRole)
+          onValueChange={(
+            value
+          ) =>
+            setRole(
+              value as
+                | "user"
+                | "admin"
+                | "agent"
+            )
           }
         >
-          <SelectTrigger>
-            <SelectValue />
+          <SelectTrigger id="role">
+            <SelectValue placeholder="Select role" />
           </SelectTrigger>
 
           <SelectContent>
+
             <SelectItem value="user">
               User
             </SelectItem>
@@ -240,26 +395,40 @@ export function UserForm({ user }: Props) {
             <SelectItem value="admin">
               Admin
             </SelectItem>
+
           </SelectContent>
         </Select>
       </div>
 
-      {/* Save */}
 
-      <Button
-        type="submit"
-        className="w-full"
-      >
-        Save changes
-      </Button>
+      {/* ================================== */}
+      {/* ERROR MESSAGE */}
+      {/* ================================== */}
 
-      {/* Message */}
-
-      {message && (
-        <p className="text-sm text-muted-foreground">
-          {message}
-        </p>
+      {state.error && (
+        <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+          {state.error}
+        </div>
       )}
+
+
+      {/* ================================== */}
+      {/* SUCCESS MESSAGE */}
+      {/* ================================== */}
+
+      {state.success && (
+        <div className="rounded-md bg-green-500/10 p-3 text-sm text-green-600">
+          {state.message}
+        </div>
+      )}
+
+
+      {/* ================================== */}
+      {/* SAVE BUTTON */}
+      {/* ================================== */}
+
+      <SubmitButton />
+
     </form>
   );
 }
