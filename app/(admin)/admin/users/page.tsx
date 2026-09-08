@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react'
-import { UsersPage } from '../components/user-page'
+
 import { DashboardSkeleton } from '@/components/dashboard-skeleton'
+import { UsersPage } from '../components/user/user-page'
 
 function Users() {
   return (

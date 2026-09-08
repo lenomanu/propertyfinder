@@ -9,7 +9,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useFormStatus } from "react-dom";
 
-import { AppUser } from "../types";
+import { Agency, AgencyStatus } from "./agency-types";
 
 
 
@@ -17,14 +17,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+
+import { StatusSelect } from "./status-select";
+
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { updateUser, UpdateUserState } from "./user-actions";
+  updateAgency,
+  UpdateAgencyState,
+} from "./agency-actions";
+import { SocialLinkField } from "./social-links-fields";
 
 
 // ==========================================
@@ -32,7 +32,7 @@ import { updateUser, UpdateUserState } from "./user-actions";
 // ==========================================
 
 type Props = {
-  user: AppUser | null;
+  agency: Agency | null;
 };
 
 
@@ -40,7 +40,7 @@ type Props = {
 // INITIAL ACTION STATE
 // ==========================================
 
-const initialState: UpdateUserState = {
+const initialState: UpdateAgencyState = {
   success: false,
 };
 
@@ -59,7 +59,7 @@ function SubmitButton() {
       disabled={pending}
     >
       {pending
-        ? "Updating..."
+        ? "Saving..."
         : "Save changes"}
     </Button>
   );
@@ -67,11 +67,11 @@ function SubmitButton() {
 
 
 // ==========================================
-// USER FORM
+// AGENCY FORM
 // ==========================================
 
-export function UserForm({
-  user,
+export function AgencyForm({
+  agency,
 }: Props) {
   const router = useRouter();
 
@@ -81,7 +81,7 @@ export function UserForm({
 
   const [state, formAction] =
     useActionState(
-      updateUser,
+      updateAgency,
       initialState
     );
 
@@ -90,58 +90,58 @@ export function UserForm({
   // Form state
   // ----------------------------------------
 
-  const [fullName, setFullName] =
+  const [agencyName, setAgencyName] =
     useState("");
 
-  const [email, setEmail] =
+  const [town, setTown] = useState("");
+
+  const [location, setLocation] =
     useState("");
 
-  const [phone, setPhone] =
+  const [email, setEmail] = useState("");
+
+  const [phone, setPhone] = useState("");
+
+  const [instagram, setInstagram] =
     useState("");
 
-  const [avatarUrl, setAvatarUrl] =
+  const [tiktok, setTiktok] =
     useState("");
 
-  const [agencyId, setAgencyId] =
+  const [facebook, setFacebook] =
     useState("");
 
-  const [role, setRole] =
-    useState<
-      "user" | "admin" | "agent"
-    >("user");
+  const [status, setStatus] =
+    useState<AgencyStatus>("pending");
+
+  const [reason, setReason] =
+    useState("");
 
 
   // ----------------------------------------
-  // Load selected user into form
+  // Load selected agency into form
   // ----------------------------------------
 
   useEffect(() => {
-    if (!user) {
+    if (!agency) {
       return;
     }
 
-    setFullName(
-      user.full_name ?? ""
-    );
+    setAgencyName(agency.agency_name);
+    setTown(agency.town);
+    setLocation(agency.location);
+    setEmail(agency.email);
+    setPhone(agency.phone);
 
-    setEmail(
-      user.email ?? ""
-    );
+    setInstagram(agency.instagram ?? "");
+    setTiktok(agency.tiktok ?? "");
+    setFacebook(agency.facebook ?? "");
 
-    setPhone(
-      user.phone ?? ""
+    setStatus(agency.status);
+    setReason(
+      agency.rejection_reason ?? ""
     );
-
-    setAvatarUrl(
-      user.avatar_url ?? ""
-    );
-
-    setAgencyId(
-      user.agency_id ?? ""
-    );
-
-    setRole(user.role);
-  }, [user]);
+  }, [agency]);
 
 
   // ----------------------------------------
@@ -161,14 +161,14 @@ export function UserForm({
 
 
   // ----------------------------------------
-  // No user selected
+  // No agency selected
   // ----------------------------------------
 
-  if (!user) {
+  if (!agency) {
     return (
       <div className="flex min-h-[400px] items-center justify-center rounded-lg border">
         <p className="text-sm text-muted-foreground">
-          Select a user to view their details.
+          Select an agency to view its details.
         </p>
       </div>
     );
@@ -191,78 +191,86 @@ export function UserForm({
 
       <div>
         <h2 className="text-lg font-semibold">
-          User details
+          Agency details
         </h2>
 
         <p className="text-sm text-muted-foreground">
-          Update the user's account information.
+          Edit the agency's information and status.
         </p>
       </div>
 
 
       {/* ================================== */}
-      {/* USER ID */}
+      {/* AGENCY ID */}
       {/* ================================== */}
 
       <input
         type="hidden"
         name="id"
-        value={user.id}
+        value={agency.id}
       />
 
-      <div className="space-y-2">
-        <Label htmlFor="id">
-          ID
-        </Label>
-
-        <Input
-          id="id"
-          value={user.id}
-          readOnly
-          disabled
-        />
-      </div>
-
 
       {/* ================================== */}
-      {/* CREATED DATE */}
+      {/* AGENCY NAME */}
       {/* ================================== */}
 
       <div className="space-y-2">
-        <Label htmlFor="created_at">
-          Created on
+        <Label htmlFor="agency_name">
+          Agency name
         </Label>
 
         <Input
-          id="created_at"
-          value={new Date(
-            user.created_at
-          ).toLocaleString()}
-          readOnly
-          disabled
-        />
-      </div>
-
-
-      {/* ================================== */}
-      {/* FULL NAME */}
-      {/* ================================== */}
-
-      <div className="space-y-2">
-        <Label htmlFor="full_name">
-          Full name
-        </Label>
-
-        <Input
-          id="full_name"
-          name="full_name"
-          value={fullName}
+          id="agency_name"
+          name="agency_name"
+          value={agencyName}
           onChange={(event) =>
-            setFullName(
+            setAgencyName(
               event.target.value
             )
           }
         />
+      </div>
+
+
+      {/* ================================== */}
+      {/* TOWN / LOCATION */}
+      {/* ================================== */}
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-2">
+          <Label htmlFor="town">
+            Town
+          </Label>
+
+          <Input
+            id="town"
+            name="town"
+            value={town}
+            onChange={(event) =>
+              setTown(
+                event.target.value
+              )
+            }
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="location">
+            Location
+          </Label>
+
+          <Input
+            id="location"
+            name="location"
+            value={location}
+            onChange={(event) =>
+              setLocation(
+                event.target.value
+              )
+            }
+          />
+        </div>
       </div>
 
 
@@ -312,93 +320,44 @@ export function UserForm({
 
 
       {/* ================================== */}
-      {/* AVATAR URL */}
+      {/* SOCIAL LINKS (editable, open in a new tab) */}
       {/* ================================== */}
 
-      <div className="space-y-2">
-        <Label htmlFor="avatar_url">
-          Avatar URL
-        </Label>
+      <SocialLinkField
+        id="instagram"
+        name="instagram"
+        label="Instagram"
+        value={instagram}
+        onChange={setInstagram}
+      />
 
-        <Input
-          id="avatar_url"
-          name="avatar_url"
-          value={avatarUrl}
-          onChange={(event) =>
-            setAvatarUrl(
-              event.target.value
-            )
-          }
-        />
-      </div>
+      <SocialLinkField
+        id="tiktok"
+        name="tiktok"
+        label="TikTok"
+        value={tiktok}
+        onChange={setTiktok}
+      />
 
-
-      {/* ================================== */}
-      {/* AGENCY ID */}
-      {/* ================================== */}
-
-      <div className="space-y-2">
-        <Label htmlFor="agency_id">
-          Agency ID
-        </Label>
-
-        <Input
-          id="agency_id"
-          name="agency_id"
-          value={agencyId}
-          onChange={(event) =>
-            setAgencyId(
-              event.target.value
-            )
-          }
-        />
-      </div>
+      <SocialLinkField
+        id="facebook"
+        name="facebook"
+        label="Facebook"
+        value={facebook}
+        onChange={setFacebook}
+      />
 
 
       {/* ================================== */}
-      {/* ROLE */}
+      {/* STATUS + REASON */}
       {/* ================================== */}
 
-      <div className="space-y-2">
-        <Label htmlFor="role">
-          Role
-        </Label>
-
-        <Select
-          name="role"
-          value={role}
-          onValueChange={(
-            value
-          ) =>
-            setRole(
-              value as
-                | "user"
-                | "admin"
-                | "agent"
-            )
-          }
-        >
-          <SelectTrigger id="role">
-            <SelectValue placeholder="Select role" />
-          </SelectTrigger>
-
-          <SelectContent>
-
-            <SelectItem value="user">
-              User
-            </SelectItem>
-
-            <SelectItem value="agent">
-              Agent
-            </SelectItem>
-
-            <SelectItem value="admin">
-              Admin
-            </SelectItem>
-
-          </SelectContent>
-        </Select>
-      </div>
+         <StatusSelect
+        status={status}
+        reason={reason}
+        onStatusChange={setStatus}
+        onReasonChange={setReason}
+      />
 
 
       {/* ================================== */}

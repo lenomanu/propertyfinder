@@ -6,9 +6,9 @@ export function DashboardSkeleton() {
         <table className="w-full text-sm">
           <thead className="bg-muted/50">
             <tr className="text-left">
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Role</th>
+              <th className="px-4 py-3"></th>
+              <th className="px-4 py-3"></th>
+              <th className="px-4 py-3"></th>
             </tr>
           </thead>
           <tbody>
@@ -32,9 +32,8 @@ export function DashboardSkeleton() {
       {/* Form skeleton */}
       <div className="space-y-5 rounded-lg border p-5">
         <div>
-          <h2 className="text-lg font-semibold">User details</h2>
+          <h2 className="text-lg font-semibold"></h2>
           <p className="text-sm text-muted-foreground">
-            Account identifiers are read-only.
           </p>
         </div>
         {Array.from({ length: 6 }).map((_, i) => (

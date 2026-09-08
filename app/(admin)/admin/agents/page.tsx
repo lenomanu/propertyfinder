@@ -1,8 +1,12 @@
-import React from 'react'
+import { DashboardSkeleton } from '@/components/dashboard-skeleton'
+import React, { Suspense } from 'react'
+import { AgenciesPage } from '../components/agency/agency-page'
 
 function Agents() {
   return (
-    <div>Agents</div>
+       <Suspense fallback={<DashboardSkeleton />}>
+            <AgenciesPage />
+          </Suspense>
   )
 }
 

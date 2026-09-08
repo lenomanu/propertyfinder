@@ -1,6 +1,6 @@
 "use client";
 
-import { AppUser } from "../types";
+import { AppUser } from "../../types";
 
 
 

@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { UsersManager } from "./user-manager";
-import { AppUser } from "../types";
+import { AppUser } from "../../types";
 
 
 export async function UsersPage() {
