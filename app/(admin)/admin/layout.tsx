@@ -1,4 +1,3 @@
-export const instant = false
 import { ThemeSwitcher } from "@/components/theme-switcher"
 import { ThemeProvider } from "next-themes"
 import { Sidebar } from "@/components/sidebar"

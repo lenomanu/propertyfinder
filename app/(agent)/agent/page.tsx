@@ -1,15 +1,22 @@
-import { GetRole } from '@/app/auth/get-role-jwt'
-import { createClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import React from 'react'
+import { Suspense } from "react";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
 async function CheckRole() {
   const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login");
+  }
+
   const { data, error } = await supabase.auth.getClaims();
 
   if (error || !data?.claims) {
     redirect("/auth/login");
-    return;
   }
 
   const role = data.claims.user_role;
@@ -17,16 +24,26 @@ async function CheckRole() {
   if (role === "admin") {
     redirect("/admin");
   }
-}
 
-async function Page() {
-  await CheckRole()
   return (
     <div>
-       
-      Agency Landing page Dashboard
+      Agency Landing Page Dashboard
     </div>
-  )
+  );
 }
 
-export default Page
+function Loading() {
+  return (
+    <div className="p-6">
+      Loading dashboard...
+    </div>
+  );
+}
+
+export default function AgentPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <CheckRole />
+    </Suspense>
+  );
+}

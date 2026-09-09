@@ -34,7 +34,7 @@ export async function Navbar() {
     asChild
   >
     <Link href="/auth/login">
-      Sign In
+      Sign In2
     </Link>
   </Button>
 )}

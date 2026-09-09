@@ -1,4 +1,4 @@
-export const instant = false
+
 export default function AgentLayout({
   children,
 }: {
