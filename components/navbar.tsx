@@ -4,6 +4,7 @@ import { NavMenu } from "@/components/nav-menu";
 import { NavigationSheet } from "@/components/navigation-sheet";
 import { LogoutButton } from "./logout-button";
 import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
 
 
 export async function Navbar() {
@@ -24,10 +25,19 @@ export async function Navbar() {
 
         <div className="flex items-center gap-3">
     
-          {session ? <LogoutButton /> :  <Button className="hidden sm:inline-flex" variant="outline">
-            Sign In
-            
-          </Button>}
+          {session ? (
+  <LogoutButton />
+) : (
+  <Button
+    className="hidden sm:inline-flex"
+    variant="outline"
+    asChild
+  >
+    <Link href="/auth/login">
+      Sign In
+    </Link>
+  </Button>
+)}
 
           {/* Mobile Menu */}
           <div className="md:hidden">
