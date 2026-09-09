@@ -1,3 +1,4 @@
+
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -9,5 +10,5 @@ export async function GetRole() {
     redirect("/auth/login");
   }
 
-  return JSON.stringify(data.claims.user_role, null, 2);
+  return data.claims.user_role as string;
 }
