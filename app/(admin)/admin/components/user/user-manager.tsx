@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { UserTable } from "./user-table";
 import { UserForm } from "./user-form";
-import { AppUser } from "../../types";
+import { AppUser } from "../../../../types";
 
 type Props = {
   users: AppUser[];

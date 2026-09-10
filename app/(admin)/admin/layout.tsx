@@ -1,9 +1,10 @@
 import { Suspense } from "react"
 import { redirect } from "next/navigation"
 import { ThemeProvider } from "next-themes"
-import { Sidebar } from "@/components/sidebar"
-import { GetRole } from "@/lib/get-role"
-import { AdminSkeleton } from "@/components/admin-skeleton" // <-- adjust to your skeleton's actual path/name
+import { Sidebar } from "@/app/(admin)/admin/components/admin-sidebar"
+import { GetRole } from "@/app/auth/get-role-jwt"
+import { DashboardSkeleton } from "@/components/dashboard-skeleton"
+
 
 export default function AdminLayout({
   children,
@@ -12,7 +13,7 @@ export default function AdminLayout({
 }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <Suspense fallback={<AdminSkeleton />}>
+      <Suspense fallback={<DashboardSkeleton />}>
         <AdminGuard>{children}</AdminGuard>
       </Suspense>
     </ThemeProvider>

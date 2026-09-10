@@ -9,7 +9,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useFormStatus } from "react-dom";
 
-import { AppUser } from "../../types";
+import { AppUser } from "../../../../types";
 
 
 

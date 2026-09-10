@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { UserRole } from "../../types";
+import { UserRole } from "../../../../types";
 
 
 

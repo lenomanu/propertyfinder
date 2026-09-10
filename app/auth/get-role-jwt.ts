@@ -1,6 +1,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { UserRole } from "../types";
 
 export async function GetRole() {
   const supabase = await createClient();
@@ -10,5 +11,5 @@ export async function GetRole() {
     redirect("/auth/login");
   }
 
-  return data.claims.user_role as string;
+  return data.claims.user_role as UserRole;
 }
