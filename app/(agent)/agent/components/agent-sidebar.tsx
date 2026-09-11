@@ -20,10 +20,10 @@ import {
 } from "lucide-react";
 
 const NAV_ITEMS = [
-  { label: "Dashboard", href: "/admin", icon: Home },
-  { label: "Properties", href: "/admin/properties", icon: Building2, badge: 24 },
-  { label: "Agents", href: "/admin/agents", icon: UserCog },
-  { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
+  { label: "Dashboard", href: "/agent", icon: Home },
+  { label: "Properties", href: "/agent/properties", icon: Building2, badge: 24 },
+  { label: "Team", href: "/agent/team", icon: UserCog },
+  { label: "Analytics", href: "/agent/analytics", icon: BarChart3 },
 ];
 
 export function Sidebar() {
