@@ -1,9 +1,10 @@
 import React from 'react'
+import PropertiePage from '../components/properties/properties-page'
 
 function Properties() {
   return (
     <div>
-      Properties
+        <PropertiePage/>
     </div>
   )
 }
