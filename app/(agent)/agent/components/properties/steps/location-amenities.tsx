@@ -1,17 +1,26 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Amenity, PropertyFormData } from "@/app/types";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
 import { Checkbox } from "@/components/ui/checkbox";
-import { PropertyFormData } from "../property-form.";
+import { Label } from "@/components/ui/label";
 
 
-type Props = {
+
+interface AmenitiesProps {
   data: PropertyFormData;
-  updateForm: (values: Partial<PropertyFormData>) => void;
-};
+  updateData: (
+    values: Partial<PropertyFormData>
+  ) => void;
+}
 
-const AMENITIES = [
+const amenities: Amenity[] = [
   "Alarm System",
   "Backup Generator",
   "En-Suite Bathroom",
@@ -26,143 +35,62 @@ const AMENITIES = [
   "Parking",
 ];
 
-export function LocationAmenities({ data, updateForm }: Props) {
-  const toggleAmenity = (amenity: string) => {
+export default function Amenities({
+  data,
+  updateData,
+}: AmenitiesProps) {
+  const toggleAmenity = (amenity: Amenity) => {
     const exists = data.amenities.includes(amenity);
 
-    updateForm({
+    updateData({
       amenities: exists
-        ? data.amenities.filter((item) => item !== amenity)
+        ? data.amenities.filter(
+            (item) => item !== amenity
+          )
         : [...data.amenities, amenity],
     });
   };
 
   return (
-    <div className="space-y-8">
-      {/* Location */}
-      <div className="space-y-4">
-        <div>
-          <h3 className="font-medium">Property Location</h3>
-          <p className="text-sm text-muted-foreground">
-            Enter the property location.
-          </p>
-        </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Amenities</CardTitle>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          <div className="space-y-2">
-            <Label>Locality</Label>
-            <Input
-              placeholder="e.g. Langas"
-              value={data.locality}
-              onChange={(e) =>
-                updateForm({
-                  locality: e.target.value,
-                })
-              }
-            />
-          </div>
+        <p className="text-sm text-muted-foreground">
+          Select the features available at this property.
+        </p>
+      </CardHeader>
 
-          <div className="space-y-2">
-            <Label>Nearest Town</Label>
-            <Input
-              placeholder="e.g. Eldoret"
-              value={data.nearestTown}
-              onChange={(e) =>
-                updateForm({
-                  nearestTown: e.target.value,
-                })
-              }
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>County</Label>
-            <Input
-              placeholder="e.g. Uasin Gishu"
-              value={data.county}
-              onChange={(e) =>
-                updateForm({
-                  county: e.target.value,
-                })
-              }
-            />
-          </div>
-        </div>
-
-        {/* Map placeholder */}
-        <div className="flex min-h-72 items-center justify-center rounded-lg border bg-muted/30">
-          <div className="text-center">
-            <p className="font-medium">Property Map</p>
-            <p className="text-sm text-muted-foreground">
-              Map / location picker goes here
-            </p>
-          </div>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label>Latitude</Label>
-            <Input
-              type="number"
-              step="any"
-              placeholder="-0.5143"
-              value={data.latitude}
-              onChange={(e) =>
-                updateForm({
-                  latitude: e.target.value,
-                })
-              }
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Longitude</Label>
-            <Input
-              type="number"
-              step="any"
-              placeholder="35.2697"
-              value={data.longitude}
-              onChange={(e) =>
-                updateForm({
-                  longitude: e.target.value,
-                })
-              }
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Amenities */}
-      <div className="space-y-4">
-        <div>
-          <h3 className="font-medium">Amenities</h3>
-          <p className="text-sm text-muted-foreground">
-            Select all amenities available at the property.
-          </p>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-          {AMENITIES.map((amenity) => {
-            const checked = data.amenities.includes(amenity);
+      <CardContent>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {amenities.map((amenity) => {
+            const checked =
+              data.amenities.includes(amenity);
 
             return (
-              <label
+              <div
                 key={amenity}
-                className="flex cursor-pointer items-center gap-3 rounded-md border p-3 hover:bg-muted/50"
+                className="flex items-center space-x-3 rounded-lg border p-4"
               >
                 <Checkbox
+                  id={amenity}
                   checked={checked}
                   onCheckedChange={() =>
                     toggleAmenity(amenity)
                   }
                 />
 
-                <span className="text-sm">{amenity}</span>
-              </label>
+                <Label
+                  htmlFor={amenity}
+                  className="cursor-pointer font-normal"
+                >
+                  {amenity}
+                </Label>
+              </div>
             );
           })}
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
