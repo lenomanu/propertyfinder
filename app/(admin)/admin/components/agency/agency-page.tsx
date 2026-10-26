@@ -32,7 +32,7 @@ export async function AgenciesPage({
   const to = from + PAGE_SIZE - 1;
 
   let query = supabase
-    .from("agency")
+    .from("agencies")
     .select(
       "id,user_id,agency_name,town,location,email,phone,instagram,tiktok,facebook,status,rejection_reason,reviewed_by,reviewed_at,created_at,updated_at",
       { count: "exact" }

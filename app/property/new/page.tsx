@@ -1,10 +1,10 @@
 import React from 'react'
-import PropertyForm from '../../components/properties/property-form.'
+import PropertyForm from '../components/property-form.'
 
 
 function AddProperty() {
   return (
-    <PropertyForm/>
+    <PropertyForm />
   
   )
 }

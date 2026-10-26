@@ -1,6 +1,6 @@
 "use client";
 
-import { PropertyFormData } from "@/app/types";
+
 import {
   Card,
   CardContent,
@@ -12,19 +12,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { MapPin } from "lucide-react";
+import { ZodNull, ZodNullable } from "zod/v3";
 
 
 interface GpsLocationProps {
-  data: PropertyFormData;
-  updateData: (
-    values: Partial<PropertyFormData>
-  ) => void;
+ propertyId ?: string | null;
 }
 
 export default function GpsLocation({
-  data,
-  updateData,
+
 }: GpsLocationProps) {
+
+
   return (
     <div className="space-y-6">
       <div>
@@ -96,12 +95,7 @@ export default function GpsLocation({
                 type="number"
                 step="any"
                 placeholder="-0.4254"
-                value={data.latitude}
-                onChange={(e) =>
-                  updateData({
-                    latitude: e.target.value,
-                  })
-                }
+                
               />
             </div>
 
@@ -115,12 +109,7 @@ export default function GpsLocation({
                 type="number"
                 step="any"
                 placeholder="36.9498"
-                value={data.longitude}
-                onChange={(e) =>
-                  updateData({
-                    longitude: e.target.value,
-                  })
-                }
+            
               />
             </div>
           </div>

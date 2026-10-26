@@ -1,12 +1,33 @@
-import React from 'react'
-import PropertiePage from '../components/properties/properties-page'
 
-function Properties() {
+import { parsePropertyQuery } from "@/lib/property-query";
+import { getProperties } from "./actions/get-properties";
+import PropertiesPage from "../components/properties/properties-page";
+
+
+type PageProps = {
+  searchParams: Promise<{
+    search?: string;
+    page?: string;
+  }>;
+};
+
+export default async function Page({
+  searchParams,
+}: PageProps) {
+  const params = await searchParams;
+
+  const query = parsePropertyQuery(params);
+
+  const result = await getProperties({
+    search: query.search,
+    page: query.page,
+  });
+
   return (
-    <div>
-        <PropertiePage/>
-    </div>
-  )
+    console.log("PropertiesPage result:", result),
+    <PropertiesPage
+      initialData={result}
+      search={query.search}
+    />
+  );
 }
-
-export default Properties

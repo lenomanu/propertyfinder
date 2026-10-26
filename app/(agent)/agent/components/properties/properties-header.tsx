@@ -41,7 +41,7 @@ export function PropertiesHeader() {
         </DropdownMenu>
 
         <Button asChild className="gap-2">
-          <Link href="/agent/properties/new">
+          <Link href="/property/new">
             <Plus className="size-4" />
             Add Property
           </Link>

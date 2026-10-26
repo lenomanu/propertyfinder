@@ -164,7 +164,7 @@ export async function updateAgency(
   // ----------------------------------------
 
   const { error } = await supabase
-    .from("agency")
+    .from("agencies")
     .update({
       agency_name: agencyName,
       town,
