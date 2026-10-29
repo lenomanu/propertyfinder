@@ -23,13 +23,9 @@ const NAV_ITEMS = [
   { label: "Dashboard", href: "/admin", icon: Home },
   { label: "Properties", href: "/admin/properties", icon: Building2, badge: 24 },
   { label: "Pending Properties", href: "/admin/properties/pending", icon: Clock },
-  { label: "Agencies", href: "/admin/agencies", icon: Landmark },
-  { label: "Pending Agencies", href: "/admin/agencies/pending", icon: Hourglass },
+  { label: "Pending Agents", href: "/admin/agents/pending", icon: Hourglass },
   { label: "Agents", href: "/admin/agents", icon: UserCog },
   { label: "Users", href: "/admin/users", icon: Users },
-  { label: "Messages", href: "/admin/messages", icon: MessageSquare, badge: 3 },
-  { label: "Calendar", href: "/admin/calendar", icon: CalendarDays },
-  { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
 ];
 
 export function Sidebar() {

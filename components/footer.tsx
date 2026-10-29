@@ -27,7 +27,7 @@ const footerLinks = [
     href: "/agent",
   },
   {
-    title: "Help",
+    title: "Help 2 Support",
     href: "#",
   },
   {

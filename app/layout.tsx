@@ -6,6 +6,7 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { Suspense } from "react";
 import NavBarSkeleton from "@/components/nav-bar-skeleton";
+import "leaflet/dist/leaflet.css";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`

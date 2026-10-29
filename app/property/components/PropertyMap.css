@@ -1,0 +1,139 @@
+
+.property-location-section {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.property-location-heading h3 {
+  font-size: 18px;
+  font-weight: 650;
+}
+
+.property-location-heading p {
+  margin-top: 5px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.property-map-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.property-map-search {
+  display: flex;
+  gap: 10px;
+}
+
+.property-map-search input,
+.property-coordinate-grid input {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+}
+
+.property-map-search input {
+  flex: 1;
+}
+
+.property-map-search button,
+.property-location-footer button {
+  border: none;
+  border-radius: 8px;
+  padding: 0 18px;
+  min-height: 42px;
+  color: white;
+  background: #2563eb;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.property-map-search button:disabled,
+.property-location-footer button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.property-map {
+  width: 100%;
+  height: 440px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  z-index: 0;
+}
+
+.property-map-loading {
+  display: grid;
+  place-items: center;
+  min-height: 200px;
+  border-radius: 12px;
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.property-map-hint {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.property-coordinate-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.property-coordinate-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.property-location-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.property-location-footer span {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.property-map-error {
+  color: #dc2626;
+  font-size: 13px;
+}
+
+.property-map-success {
+  color: #15803d;
+  font-size: 13px;
+}
+
+@media (max-width: 640px) {
+  .property-coordinate-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .property-map {
+    height: 350px;
+  }
+
+  .property-map-search {
+    flex-wrap: wrap;
+  }
+
+  .property-map-search button {
+    min-height: 44px;
+  }
+}

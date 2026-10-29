@@ -1,25 +1,25 @@
-"use client";
-
-import React, { Suspense } from "react";
-import { useParams } from "next/navigation";
+import { Suspense } from "react";
 
 import BasicDetailsSkeleton from "../components/basic-details-skeleton";
 import PropertyForm from "../components/property-form.";
 
-function UpdateProperty() {
-  const params = useParams();
+async function PropertyContent({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  return <PropertyForm propertyId={id} />;
+}
 
-  const id = params.id;
-
-  if (!id || typeof id !== "string") {
-    return <BasicDetailsSkeleton />;
-  }
-
+export default function UpdateProperty({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   return (
     <Suspense fallback={<BasicDetailsSkeleton />}>
-      <PropertyForm propertyId={id} />
+      <PropertyContent params={params} />
     </Suspense>
   );
 }
-
-export default UpdateProperty;
