@@ -1,7 +1,8 @@
-import React from 'react'
+import React from "react";
 
-import PropertyDetails from '../property-details'
-import Amenities from '../amenities';
+import PropertyDetails from "../property-details";
+import Amenities from "../amenities";
+import LandDetails from "../land-details";
 
 type DetailsProps = {
   propertyId: string;
@@ -9,13 +10,21 @@ type DetailsProps = {
 };
 
 function Details({ propertyId, propertyType }: DetailsProps) {
+  const isLandProperty = ["land", "plot"].includes(
+    propertyType.toLowerCase()
+  );
+
   return (
-    <div>
-      <PropertyDetails propertyId={propertyId} />
-      
+    <div className="space-y-6">
+      {isLandProperty ? (
+        <LandDetails propertyId={propertyId} />
+      ) : (
+        <PropertyDetails propertyId={propertyId} />
+      )}
+
       <Amenities propertyId={propertyId} />
     </div>
-  )
+  );
 }
 
-export default Details
+export default Details;

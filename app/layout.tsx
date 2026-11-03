@@ -1,12 +1,16 @@
+
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
+
 import "./globals.css";
+import "leaflet/dist/leaflet.css";
+
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { Suspense } from "react";
 import NavBarSkeleton from "@/components/nav-bar-skeleton";
-import "leaflet/dist/leaflet.css";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -15,7 +19,8 @@ const defaultUrl = process.env.VERCEL_URL
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   title: "Property Finder",
-  description: "The Property Finder is a web application that allows users to search for properties and view property details.",
+  description:
+    "The Property Finder is a web application that allows users to search for properties and view property details.",
 };
 
 const geistSans = Geist({
@@ -38,11 +43,15 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-        <Suspense fallback={<NavBarSkeleton />}>
-          <Navbar />
-        </Suspense>
-          {children}
-          <Footer />
+          <NuqsAdapter>
+            <Suspense fallback={<NavBarSkeleton />}>
+              <Navbar />
+            </Suspense>
+
+            {children}
+
+            <Footer />
+          </NuqsAdapter>
         </ThemeProvider>
       </body>
     </html>
