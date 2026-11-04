@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+export const USERNAME_PATTERN = /^[a-z0-9][a-z0-9-]{2,29}$/;
 
 export const applicationSchema = z.object({
   agencyName: z
@@ -7,6 +8,15 @@ export const applicationSchema = z.object({
     .trim()
     .min(2, "Agency name must be at least 2 characters.")
     .max(100, "Agency name must be less than 100 characters."),
+
+  username: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .regex(
+      USERNAME_PATTERN,
+      "Use 3–30 characters: lowercase letters, numbers, and hyphens. Start with a letter or number."
+    ),
 
   town: z
     .string()

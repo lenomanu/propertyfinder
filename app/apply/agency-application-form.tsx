@@ -13,14 +13,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import type { ApplicationState, ApplicationValues } from "./types";
+import type { ApplicationState, ApplicationValues, UsernameCheck } from "./types";
 
 import {
+  checkUsernameAvailability,
   submitAgentApplication,
 } from "./actions";
+import { USERNAME_PATTERN } from "./schema";
 
 const initialValues: ApplicationValues = {
   agencyName: "",
+  username: "",
   town: "",
   location: "",
   email: "",
@@ -52,6 +55,8 @@ export default function AgencyApplicationForm() {
 
   const [values, setValues] =
     useState<ApplicationValues>(initialValues);
+  const [usernameCheck, setUsernameCheck] = useState<UsernameCheck | null>(null);
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
 
   // --------------------------------------------------
   // Restore values returned by server
@@ -62,6 +67,41 @@ export default function AgencyApplicationForm() {
       setValues(state.values);
     }
   }, [state.values]);
+
+  useEffect(() => {
+    const username = values.username.trim().toLowerCase();
+
+    if (!username) {
+      setUsernameCheck(null);
+      setIsCheckingUsername(false);
+      return;
+    }
+
+    if (!USERNAME_PATTERN.test(username)) {
+      setUsernameCheck({
+        status: "invalid",
+        message:
+          "Use 3–30 characters: lowercase letters, numbers, and hyphens. Start with a letter or number.",
+      });
+      setIsCheckingUsername(false);
+      return;
+    }
+
+    let cancelled = false;
+    setIsCheckingUsername(true);
+
+    const timeoutId = window.setTimeout(async () => {
+      const result = await checkUsernameAvailability(username);
+      if (cancelled) return;
+      setUsernameCheck(result);
+      setIsCheckingUsername(false);
+    }, 400);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
+  }, [values.username]);
 
   // --------------------------------------------------
   // Handle input changes
@@ -74,9 +114,12 @@ export default function AgencyApplicationForm() {
 
     setValues((currentValues) => ({
       ...currentValues,
-      [name]: value,
+      [name]: name === "username" ? value.toLowerCase() : value,
     }));
   }
+
+  const usernameBlocksSubmit =
+    isCheckingUsername || usernameCheck?.status !== "available";
 
   
 
@@ -127,6 +170,53 @@ export default function AgencyApplicationForm() {
                       {state.errors.agencyName[0]}
                     </p>
                   )}
+                </div>
+
+                <div className="col-span-full space-y-2">
+                  <Label htmlFor="username">Username</Label>
+
+                  <Input
+                    id="username"
+                    name="username"
+                    value={values.username}
+                    onChange={handleChange}
+                    placeholder="your-agency"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    disabled={isPending}
+                  />
+
+                  <p className="text-sm text-muted-foreground">
+                    This is the public name for your agency profile.
+                  </p>
+
+                  {isCheckingUsername && (
+                    <p className="text-sm text-muted-foreground">
+                      Checking availability...
+                    </p>
+                  )}
+
+                  {!isCheckingUsername && usernameCheck?.status === "available" && (
+                    <p className="text-sm text-green-700">
+                      Username is available.
+                    </p>
+                  )}
+
+                  {!isCheckingUsername &&
+                    usernameCheck &&
+                    usernameCheck.status !== "available" && (
+                      <p className="text-sm text-destructive">
+                        {usernameCheck.message}
+                      </p>
+                    )}
+
+                  {state.errors?.username &&
+                    usernameCheck?.message !== state.errors.username[0] && (
+                      <p className="text-sm text-destructive">
+                        {state.errors.username[0]}
+                      </p>
+                    )}
                 </div>
 
                 {/* ------------------------------------------------ */}
@@ -348,7 +438,7 @@ export default function AgencyApplicationForm() {
             <div className="mt-8 flex justify-end">
               <Button
                 type="submit"
-                disabled={isPending}
+                disabled={isPending || usernameBlocksSubmit}
               >
                 {isPending
                   ? "Submitting..."

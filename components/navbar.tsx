@@ -1,19 +1,12 @@
-import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
+import { NavAuth } from "@/components/nav-auth";
 import { NavMenu } from "@/components/nav-menu";
 import { NavigationSheet } from "@/components/navigation-sheet";
-import { LogoutButton } from "./logout-button";
 import { createClient } from "@/lib/supabase/server";
-import Link from "next/link";
-
 
 export async function Navbar() {
   const supabase = await createClient();
-
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
+  const { data } = await supabase.auth.getClaims();
 
   return (
     <nav className="h-16 border-b bg-background">
@@ -24,20 +17,7 @@ export async function Navbar() {
         <NavMenu className="hidden md:block" />
 
         <div className="flex items-center gap-3">
-    
-          {session ? (
-  <LogoutButton />
-) : (
-  <Button
-    className="hidden sm:inline-flex"
-    variant="outline"
-    asChild
-  >
-    <Link href="/auth/login">
-      Sign In2
-    </Link>
-  </Button>
-)}
+          <NavAuth signedIn={Boolean(data?.claims)} />
 
           {/* Mobile Menu */}
           <div className="md:hidden">
@@ -47,6 +27,6 @@ export async function Navbar() {
       </div>
     </nav>
   );
-};
+}
 
 export default Navbar;

@@ -51,6 +51,7 @@ export type Property = {
 
 export type PropertyResult = Omit<Property, "property_images"> & {
   images: string[];
+  broker_name: string | null;
 };
 
 export type FetchResult = {

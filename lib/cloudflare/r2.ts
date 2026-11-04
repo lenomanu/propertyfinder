@@ -62,17 +62,4 @@ export async function deleteR2Object(key: string) {
   );
 }
 
-export function getPublicImageUrl(key: string) {
-  const baseUrl = process.env.R2_PUBLIC_BASE_URL;
-
-  if (!baseUrl) {
-    throw new Error("R2_PUBLIC_BASE_URL is not configured.");
-  }
-
-  const encodedKey = key
-    .split("/")
-    .map(encodeURIComponent)
-    .join("/");
-
-  return `${baseUrl.replace(/\/$/, "")}/${encodedKey}`;
-}
+export { getPublicImageUrl } from "./public-image-url";

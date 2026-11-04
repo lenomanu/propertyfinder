@@ -1,0 +1,18 @@
+---
+description: This app's Supabase Postgres database
+alwaysApply: true
+---
+
+# Supabase Postgres
+
+This repo uses one hosted Supabase Postgres database. Schema changes, SQL, and data checks for this app go there.
+
+- Project ref: `sibxfkwxrmcwkqnucffd`
+- API URL: `https://sibxfkwxrmcwkqnucffd.supabase.co`
+- Direct Postgres host: `db.sibxfkwxrmcwkqnucffd.supabase.co`, database `postgres`, user `postgres`, port `5432`
+- App clients read `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` from `.env`
+- `SUPABASE_SERVICE_ROLE_KEY` in `.env` is still the placeholder `your_existing_server_only_service_role_key`. It cannot query or change this database.
+- There is no `DATABASE_URL` and no Supabase CLI login in this environment. DDL is applied in the Supabase SQL editor for project `sibxfkwxrmcwkqnucffd`, or with a real service-role key / database password.
+- Put SQL in `supabase/migrations/`. Do not invent a second project or a local database.
+
+`public.agencies` has `username` and `profile_image_url`. Row security hides other agencies from an applicant, so a normal `select` cannot tell whether a username is taken. Username checks must use `public.is_agency_username_taken(candidate text)` after that migration is applied.

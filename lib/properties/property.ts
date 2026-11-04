@@ -143,6 +143,7 @@ async function fetchProperties(
       ({ property_images, ...property }) => ({
         ...property,
         images: getRandomImages(property_images ?? []),
+        broker_name: null,
       })
     );
 
@@ -219,4 +220,190 @@ export async function getPropertiesByCity(
   });
 
   return fetchProperties(page, city);
+}
+
+export type PropertyImageRecord = {
+  storage_path: string;
+  is_primary: boolean | null;
+  display_order: number | null;
+};
+
+export type PropertyAmenity = {
+  name: string;
+  description: string | null;
+  icon: string | null;
+  placement: "internal" | "external";
+};
+
+export type PropertyDetail = Property & {
+  images: PropertyImageRecord[];
+  broker_name: string | null;
+};
+
+function one<T>(value: T | T[] | null | undefined): T | null {
+  if (Array.isArray(value)) return value[0] ?? null;
+  return value ?? null;
+}
+
+export async function getPropertyBySlug(
+  slug: string
+): Promise<PropertyDetail | null> {
+  const cleanSlug = slug.trim();
+  if (!cleanSlug) return null;
+
+  try {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from("properties")
+      .select(
+        `
+          id,
+          user_id,
+          agency_id,
+          slug,
+          title,
+          property_type,
+          listing_type,
+          price,
+          price_period,
+          currency,
+          description,
+          locality,
+          nearest_town,
+          county,
+          latitude,
+          longitude,
+          status,
+          created_at,
+          updated_at,
+
+          property_details (
+            id,
+            land_size,
+            land_size_unit,
+            bedrooms,
+            bathrooms,
+            car_ports,
+            floor_area,
+            floor_area_unit,
+            floors,
+            year_built,
+            furnished
+          ),
+
+          land_details (
+            id,
+            land_size,
+            land_size_unit,
+            land_use
+          ),
+
+          property_images (
+            storage_path,
+            is_primary,
+            display_order
+          ),
+
+          agencies (
+            agency_name
+          ),
+
+          users:user_id (
+            full_name
+          )
+        `
+      )
+      .eq("slug", cleanSlug)
+      .in("status", ["approved", "sold"])
+      .maybeSingle();
+
+    if (error) {
+      console.error("[getPropertyBySlug] Supabase error:", error);
+      return null;
+    }
+
+    if (!data) return null;
+
+    const row = data as unknown as Property & {
+      property_images: PropertyImageRecord[] | null;
+      agencies:
+        | { agency_name: string | null }
+        | { agency_name: string | null }[]
+        | null;
+      users:
+        | { full_name: string | null }
+        | { full_name: string | null }[]
+        | null;
+    };
+
+    const { property_images, agencies, users, ...property } = row;
+    const agency = one(agencies);
+    const agent = one(users);
+
+    const images = [...(property_images ?? [])].sort((left, right) => {
+      if (Boolean(left.is_primary) !== Boolean(right.is_primary)) {
+        return left.is_primary ? -1 : 1;
+      }
+
+      return (left.display_order ?? 0) - (right.display_order ?? 0);
+    });
+
+    return {
+      ...property,
+      property_details: one(property.property_details),
+      land_details: one(property.land_details),
+      property_images: images,
+      images,
+      broker_name: agency?.agency_name ?? agent?.full_name ?? null,
+    };
+  } catch (error) {
+    console.error("[getPropertyBySlug] Unexpected error:", error);
+    return null;
+  }
+}
+
+export async function getPropertyAmenities(
+  propertyId: string
+): Promise<PropertyAmenity[]> {
+  if (!propertyId) return [];
+
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("property_amenities")
+      .select("amenities(name, description, icon, placement)")
+      .eq("property_id", propertyId);
+
+    if (error) {
+      console.error("[getPropertyAmenities] Supabase error:", error);
+      return [];
+    }
+
+    return (data ?? [])
+      .flatMap((row) => {
+        const amenity = one(
+          (
+            row as {
+              amenities: PropertyAmenity | PropertyAmenity[] | null;
+            }
+          ).amenities
+        );
+
+        if (!amenity?.name) return [];
+
+        return [
+          {
+            name: amenity.name,
+            description: amenity.description ?? null,
+            icon: amenity.icon ?? null,
+            placement: amenity.placement === "external" ? "external" : "internal",
+          },
+        ];
+      })
+      .sort((left, right) => left.name.localeCompare(right.name));
+  } catch (error) {
+    console.error("[getPropertyAmenities] Unexpected error:", error);
+    return [];
+  }
 }

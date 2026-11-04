@@ -10,12 +10,45 @@ import type {
   PropertyPagination,
 } from "@/lib/properties/property.types";
 
-import type {
-  PropertySearchFilters,
-} from "@/lib/properties/property-search-params";
+import type { PropertySearchFilters } from "@/lib/properties/property-search-params";
 
 const DEFAULT_PAGE_SIZE = 20;
 const MAX_PAGE_SIZE = 100;
+const SQM_PER_ACRE = 4046.8564224;
+const HECTARES_PER_ACRE = 0.40468564224;
+
+function isLandPropertyType(propertyType: string) {
+  return propertyType === "land" || propertyType === "plot";
+}
+
+function formatFilterNumber(value: number) {
+  return String(Number(value.toFixed(6)));
+}
+
+function landSizeFilter(acres: number) {
+  const units = [
+    { unit: "acre", factor: 1 },
+    { unit: "sqm", factor: SQM_PER_ACRE },
+    { unit: "hectare", factor: HECTARES_PER_ACRE },
+  ];
+
+  return units
+    .map(({ unit, factor }) => {
+      const min = formatFilterNumber(acres * factor);
+
+      if (acres >= 5) {
+        return `and(land_size.gte.${min},land_size_unit.eq.${unit})`;
+      }
+
+      if (acres >= 1) {
+        const max = formatFilterNumber((acres + 1) * factor);
+        return `and(land_size.gte.${min},land_size.lt.${max},land_size_unit.eq.${unit})`;
+      }
+
+      return `and(land_size.eq.${min},land_size_unit.eq.${unit})`;
+    })
+    .join(",");
+}
 
 type SearchFilters = Omit<
   PropertySearchFilters,
@@ -24,7 +57,8 @@ type SearchFilters = Omit<
 
 export async function getSearchedProperties(
   filters: SearchFilters,
-  pagination: PropertyPagination = {}
+  pagination: PropertyPagination = {},
+  options: { status?: "approved" | "sold" } = {}
 ): Promise<FetchResult> {
   try {
     const supabase = await createClient();
@@ -53,13 +87,23 @@ export async function getSearchedProperties(
     // 2. Determine required relationships
     // -----------------------------------------
 
+    const landType = isLandPropertyType(filters.propertyType);
+
     const needsPropertyDetails =
-      filters.bedrooms !== null ||
-      filters.bathrooms !== null;
+      !landType &&
+      (filters.bedrooms !== null || filters.bathrooms !== null);
 
     const propertyDetailsJoin = needsPropertyDetails
       ? "property_details!inner"
       : "property_details";
+
+    const landSizeAcres =
+      filters.minLandSize !== null && landType
+        ? Number(filters.minLandSize)
+        : null;
+
+    const landDetailsJoin =
+      landSizeAcres !== null ? "land_details!inner" : "land_details";
 
     // -----------------------------------------
     // 3. Select property information
@@ -100,7 +144,7 @@ export async function getSearchedProperties(
         furnished
       ),
 
-      land_details (
+      ${landDetailsJoin} (
         id,
         land_size,
         land_size_unit,
@@ -109,6 +153,14 @@ export async function getSearchedProperties(
 
       property_images (
         storage_path
+      ),
+
+      agencies (
+        agency_name
+      ),
+
+      users:user_id (
+        full_name
       )
     `;
 
@@ -121,7 +173,7 @@ export async function getSearchedProperties(
       .select(selectQuery, {
         count: "exact",
       })
-      .eq("status", "approved");
+      .eq("status", options.status ?? "approved");
 
     // -----------------------------------------
     // 5. Search
@@ -164,6 +216,12 @@ export async function getSearchedProperties(
       );
     }
 
+    const locality = filters.locality?.trim();
+
+    if (locality) {
+      query = query.ilike("locality", locality);
+    }
+
     // -----------------------------------------
     // 8. Price filters
     // -----------------------------------------
@@ -186,18 +244,28 @@ export async function getSearchedProperties(
     // 9. Property details filters
     // -----------------------------------------
 
-    if (filters.bedrooms !== null) {
+    if (!landType && filters.bedrooms !== null) {
       query = query.gte(
         "property_details.bedrooms",
         filters.bedrooms
       );
     }
 
-    if (filters.bathrooms !== null) {
+    if (!landType && filters.bathrooms !== null) {
       query = query.gte(
         "property_details.bathrooms",
         filters.bathrooms
       );
+    }
+
+    // -----------------------------------------
+    // 9b. Land size (plot and land only)
+    // -----------------------------------------
+
+    if (landSizeAcres !== null) {
+      query = query.or(landSizeFilter(landSizeAcres), {
+        referencedTable: "land_details",
+      });
     }
 
     // -----------------------------------------
@@ -266,14 +334,30 @@ export async function getSearchedProperties(
     // -----------------------------------------
 
     const properties: PropertyResult[] = (
-      (data ?? []) as unknown as Property[]
-    ).map((property) => ({
-      ...property,
+      (data ?? []) as unknown as (Property & {
+        agencies:
+          | { agency_name: string | null }
+          | { agency_name: string | null }[]
+          | null;
+        users:
+          | { full_name: string | null }
+          | { full_name: string | null }[]
+          | null;
+      })[]
+    ).map((property) => {
+      const { agencies, users, property_images, ...rest } = property;
 
-      images: (property.property_images ?? [])
-        .map((image) => image.storage_path)
-        .filter(Boolean),
-    }));
+      const agency = Array.isArray(agencies) ? agencies[0] : agencies;
+      const agent = Array.isArray(users) ? users[0] : users;
+
+      return {
+        ...rest,
+        images: (property_images ?? [])
+          .map((image) => image.storage_path)
+          .filter(Boolean),
+        broker_name: agency?.agency_name ?? agent?.full_name ?? null,
+      };
+    });
 
     // -----------------------------------------
     // 14. Pagination metadata
@@ -313,5 +397,39 @@ export async function getSearchedProperties(
       properties: [],
       error: "Unable to retrieve properties.",
     };
+  }
+}
+
+export async function getPropertyLocalities(
+  status: "approved" | "sold" = "approved"
+): Promise<string[]> {
+  try {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from("properties")
+      .select("locality")
+      .eq("status", status)
+      .limit(1000);
+
+    if (error) {
+      console.error("[getPropertyLocalities] Supabase error:", error);
+      return [];
+    }
+
+    const counts = new Map<string, number>();
+
+    for (const row of data ?? []) {
+      const name = row.locality?.trim();
+      if (!name) continue;
+      counts.set(name, (counts.get(name) ?? 0) + 1);
+    }
+
+    return [...counts.entries()]
+      .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+      .map(([name]) => name);
+  } catch (error) {
+    console.error("[getPropertyLocalities] Error:", error);
+    return [];
   }
 }

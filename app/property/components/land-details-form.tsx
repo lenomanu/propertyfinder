@@ -51,7 +51,7 @@ const LAND_SIZE_PRESETS = [
   { label: "2 Acres", value: "2" },
   { label: "3 Acres", value: "3" },
   { label: "4 Acres", value: "4" },
-  { label: "5 Acres", value: "5" },
+  { label: "5 Acres+", value: "5" },
 ];
 
 function getInitialData(
