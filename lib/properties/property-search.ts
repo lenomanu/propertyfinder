@@ -58,7 +58,11 @@ type SearchFilters = Omit<
 export async function getSearchedProperties(
   filters: SearchFilters,
   pagination: PropertyPagination = {},
-  options: { status?: "approved" | "sold" } = {}
+  options: {
+    status?: "approved" | "sold";
+    agencyId?: string;
+    agencyUserId?: string;
+  } = {}
 ): Promise<FetchResult> {
   try {
     const supabase = await createClient();
@@ -168,7 +172,7 @@ export async function getSearchedProperties(
     // 4. Base query
     // -----------------------------------------
 
-    let query: any = supabase
+    let query = supabase
       .from("properties")
       .select(selectQuery, {
         count: "exact",
@@ -183,15 +187,30 @@ export async function getSearchedProperties(
       ?.trim()
       .replace(/[,%()]/g, " ");
 
-    if (searchTerm) {
-      query = query.or(
-        [
+    const searchConditions = searchTerm
+      ? [
           `title.ilike.%${searchTerm}%`,
           `locality.ilike.%${searchTerm}%`,
           `nearest_town.ilike.%${searchTerm}%`,
           `county.ilike.%${searchTerm}%`,
-        ].join(",")
+        ]
+      : [];
+
+    const ownershipConditions = [
+      options.agencyId ? `agency_id.eq.${options.agencyId}` : null,
+      options.agencyUserId ? `user_id.eq.${options.agencyUserId}` : null,
+    ].filter((condition): condition is string => Boolean(condition));
+
+    if (ownershipConditions.length > 0) {
+      const scopedConditions = ownershipConditions.map((ownership) =>
+        searchConditions.length > 0
+          ? `and(${ownership},or(${searchConditions.join(",")}))`
+          : ownership
       );
+
+      query = query.or(scopedConditions.join(","));
+    } else if (searchConditions.length > 0) {
+      query = query.or(searchConditions.join(","));
     }
 
     // -----------------------------------------
@@ -401,16 +420,28 @@ export async function getSearchedProperties(
 }
 
 export async function getPropertyLocalities(
-  status: "approved" | "sold" = "approved"
+  status: "approved" | "sold" = "approved",
+  scope: { agencyId?: string; agencyUserId?: string } = {}
 ): Promise<string[]> {
   try {
     const supabase = await createClient();
 
-    const { data, error } = await supabase
+    let query = supabase
       .from("properties")
       .select("locality")
       .eq("status", status)
       .limit(1000);
+
+    const ownershipConditions = [
+      scope.agencyId ? `agency_id.eq.${scope.agencyId}` : null,
+      scope.agencyUserId ? `user_id.eq.${scope.agencyUserId}` : null,
+    ].filter((condition): condition is string => Boolean(condition));
+
+    if (ownershipConditions.length > 0) {
+      query = query.or(ownershipConditions.join(","));
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error("[getPropertyLocalities] Supabase error:", error);

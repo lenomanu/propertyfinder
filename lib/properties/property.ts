@@ -232,13 +232,74 @@ export type PropertyAmenity = {
   name: string;
   description: string | null;
   icon: string | null;
-  placement: "internal" | "external";
+  placement: "internal" | "external" | null;
+};
+
+export type ListingContact = {
+  name: string;
+  username: string | null;
+  imageUrl: string | null;
+  phone: string | null;
+  email: string | null;
+  location: string | null;
+  links: { label: string; href: string }[];
 };
 
 export type PropertyDetail = Property & {
   images: PropertyImageRecord[];
   broker_name: string | null;
+  listing_contact: ListingContact | null;
 };
+
+type AgencyContactRow = {
+  username: string | null;
+  agency_name: string | null;
+  profile_image_url: string | null;
+  email: string | null;
+  phone: string | null;
+  town: string | null;
+  location: string | null;
+  instagram: string | null;
+  tiktok: string | null;
+  facebook: string | null;
+};
+
+function externalHref(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed.replace(/^@/, "")}`;
+}
+
+function listingContact(
+  agency: AgencyContactRow | null,
+  agentName: string | null
+): ListingContact | null {
+  const name = agency?.agency_name?.trim() || agentName?.trim() || "";
+  if (!name) return null;
+
+  const location =
+    [agency?.location, agency?.town].filter(Boolean).join(", ") || null;
+
+  const links = [
+    ["Instagram", agency?.instagram],
+    ["TikTok", agency?.tiktok],
+    ["Facebook", agency?.facebook],
+  ].flatMap(([label, value]) => {
+    const href = value ? externalHref(value) : null;
+    return href && label ? [{ label, href }] : [];
+  });
+
+  return {
+    name,
+    username: agency?.username?.trim() || null,
+    imageUrl: agency?.profile_image_url?.trim() || null,
+    phone: agency?.phone?.trim() || null,
+    email: agency?.email?.trim() || null,
+    location,
+    links,
+  };
+}
 
 function one<T>(value: T | T[] | null | undefined): T | null {
   if (Array.isArray(value)) return value[0] ?? null;
@@ -306,7 +367,16 @@ export async function getPropertyBySlug(
           ),
 
           agencies (
-            agency_name
+            username,
+            agency_name,
+            profile_image_url,
+            email,
+            phone,
+            town,
+            location,
+            instagram,
+            tiktok,
+            facebook
           ),
 
           users:user_id (
@@ -327,10 +397,7 @@ export async function getPropertyBySlug(
 
     const row = data as unknown as Property & {
       property_images: PropertyImageRecord[] | null;
-      agencies:
-        | { agency_name: string | null }
-        | { agency_name: string | null }[]
-        | null;
+      agencies: AgencyContactRow | AgencyContactRow[] | null;
       users:
         | { full_name: string | null }
         | { full_name: string | null }[]
@@ -356,6 +423,7 @@ export async function getPropertyBySlug(
       property_images: images,
       images,
       broker_name: agency?.agency_name ?? agent?.full_name ?? null,
+      listing_contact: listingContact(agency, agent?.full_name ?? null),
     };
   } catch (error) {
     console.error("[getPropertyBySlug] Unexpected error:", error);
@@ -380,28 +448,19 @@ export async function getPropertyAmenities(
       return [];
     }
 
-    return (data ?? [])
-      .flatMap((row) => {
-        const amenity = one(
-          (
-            row as {
-              amenities: PropertyAmenity | PropertyAmenity[] | null;
-            }
-          ).amenities
-        );
+    const amenities = (data ?? []).flatMap((row) => {
+      const amenity = one(
+        (
+          row as {
+            amenities: PropertyAmenity | PropertyAmenity[] | null;
+          }
+        ).amenities
+      );
 
-        if (!amenity?.name) return [];
+      return amenity?.name ? [amenity] : [];
+    });
 
-        return [
-          {
-            name: amenity.name,
-            description: amenity.description ?? null,
-            icon: amenity.icon ?? null,
-            placement: amenity.placement === "external" ? "external" : "internal",
-          },
-        ];
-      })
-      .sort((left, right) => left.name.localeCompare(right.name));
+    return amenities.sort((left, right) => left.name.localeCompare(right.name));
   } catch (error) {
     console.error("[getPropertyAmenities] Unexpected error:", error);
     return [];

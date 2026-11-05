@@ -1,3 +1,5 @@
+export const instant = false;
+
 import { getAllProperties } from '@/lib/properties/property';
 import React from 'react'
 

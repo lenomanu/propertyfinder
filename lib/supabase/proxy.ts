@@ -68,6 +68,7 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/properties-for-rent") ||
     pathname.startsWith("/properties-sold") ||
     pathname.startsWith("/find-agent") ||
+    pathname.startsWith("/agency/") ||
     isPropertySlug;
 
   if (!user && !isPublicPath) {

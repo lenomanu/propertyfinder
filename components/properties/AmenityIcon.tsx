@@ -17,15 +17,15 @@ export default function AmenityIcon({ name }: { name: string | null }) {
   const iconName = name ? toIconName(name) : "";
 
   if (!iconNameSet.has(iconName)) {
-    return <Sparkles className="h-5 w-5" aria-hidden="true" />;
+    return <Sparkles className="h-4 w-4" aria-hidden="true" />;
   }
 
   return (
     <DynamicIcon
       name={iconName as IconName}
-      className="h-5 w-5"
+      className="h-4 w-4"
       aria-hidden="true"
-      fallback={() => <Sparkles className="h-5 w-5" aria-hidden="true" />}
+      fallback={() => <Sparkles className="h-4 w-4" aria-hidden="true" />}
     />
   );
 }

@@ -57,6 +57,10 @@ export default function AgencyApplicationForm() {
     useState<ApplicationValues>(initialValues);
   const [usernameCheck, setUsernameCheck] = useState<UsernameCheck | null>(null);
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const usernameCheckMessage =
+    usernameCheck && "message" in usernameCheck
+      ? usernameCheck.message
+      : null;
 
   // --------------------------------------------------
   // Restore values returned by server
@@ -212,7 +216,7 @@ export default function AgencyApplicationForm() {
                     )}
 
                   {state.errors?.username &&
-                    usernameCheck?.message !== state.errors.username[0] && (
+                    usernameCheckMessage !== state.errors.username[0] && (
                       <p className="text-sm text-destructive">
                         {state.errors.username[0]}
                       </p>

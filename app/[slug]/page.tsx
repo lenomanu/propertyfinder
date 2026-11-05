@@ -1,11 +1,19 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ImageIcon } from "lucide-react";
+import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 
 import PropertyAmenities from "@/components/properties/PropertyAmenities";
 import PropertyAmenitiesSkeleton from "@/components/properties/PropertyAmenitiesSkeleton";
+import PropertyGallery from "@/components/properties/PropertyGallery";
+import PropertyShareButton from "@/components/properties/PropertyShareButton";
+import SimilarProperties from "@/components/properties/SimilarProperties";
+import SimilarPropertiesSkeleton from "@/components/properties/SimilarPropertiesSkeleton";
 import { getPublicImageUrl } from "@/lib/cloudflare/public-image-url";
-import { getPropertyBySlug } from "@/lib/properties/property";
+import {
+  getPropertyBySlug,
+  type ListingContact,
+} from "@/lib/properties/property";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -131,109 +139,196 @@ async function PropertyDetails({ params }: Props) {
     .filter(Boolean)
     .join(", ");
 
+  const floorArea = details?.floor_area;
+  const pricePerArea =
+    floorArea != null && floorArea > 0
+      ? `${formatPrice(property.price / floorArea, property.currency)} / ${details?.floor_area_unit ?? "unit"}`
+      : null;
+
+  const headlineFacts = facts.slice(0, 4);
+  const extraFacts = facts.slice(4);
+
   return (
-    <main className="container mx-auto space-y-8 px-4 py-6 sm:px-6 lg:px-8">
-      <div className="grid gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-muted">
-          {images[0] ? (
-            <img
-              src={images[0]}
-              alt={property.title}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center">
-              <ImageIcon className="h-12 w-12 text-muted-foreground" />
-            </div>
-          )}
-          {isSold && (
-            <span className="absolute left-4 top-4 rounded-full bg-orange-500 px-3 py-1 text-sm font-semibold text-white">
-              Sold
-            </span>
-          )}
-        </div>
+    <main className="bg-white">
+      <div className="container mx-auto px-4 pb-6 pt-2 sm:px-6 lg:px-8">
+        <div className="rounded-3xl bg-white p-4 pt-2 shadow-sm sm:px-6 sm:pb-6 sm:pt-3 lg:px-8 lg:pb-8 lg:pt-4">
+          <PropertyGallery
+            images={images}
+            title={property.title}
+            badge={isSold ? "Sold" : listingLabel}
+            sold={isSold}
+          />
 
-        {images.length > 1 && (
-          <div className="grid grid-cols-2 gap-3">
-            {images.slice(1, 5).map((url) => (
-              <div
-                key={url}
-                className="aspect-[4/3] overflow-hidden rounded-xl bg-muted"
-              >
-                <img
-                  src={url}
-                  alt=""
-                  className="h-full w-full object-cover"
-                />
+      <div className="mt-8">
+        <div className="min-w-0 space-y-8">
+          <div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex min-w-0 items-start justify-between gap-3">
+                <h1 className="max-w-xl text-3xl font-semibold tracking-tight">
+                  {property.title}
+                </h1>
+                <PropertyShareButton title={property.title} />
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+              <div className="sm:text-right">
+                <p className="text-3xl font-semibold tracking-tight">
+                  {formatPrice(property.price, property.currency)}
+                </p>
+                {property.price_period && property.price_period !== "once" && (
+                  <p className="text-sm text-muted-foreground">
+                    / {property.price_period}
+                  </p>
+                )}
+                {pricePerArea && (
+                  <p className="text-sm text-muted-foreground">{pricePerArea}</p>
+                )}
+              </div>
+            </div>
 
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
-        <div className="space-y-8">
-          <div className="space-y-2">
-            <p
-              className={
-                isSold
-                  ? "text-sm font-medium text-orange-600"
-                  : "text-sm text-muted-foreground"
-              }
-            >
-              {listingLabel}
-            </p>
-            <h1 className="text-3xl font-semibold tracking-tight">
-              {property.title}
-            </h1>
-            <p className="text-muted-foreground">{location}</p>
-            <p className="text-3xl font-bold tracking-tight">
-              {formatPrice(property.price, property.currency)}
-              {property.price_period && property.price_period !== "once" && (
-                <span className="ml-1 text-base font-medium text-muted-foreground">
-                  / {property.price_period}
-                </span>
-              )}
-            </p>
-          </div>
+            {location && (
+              <p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+                <MapPin className="h-4 w-4 shrink-0" />
+                {location}
+              </p>
+            )}
 
-          {facts.length > 0 && (
-            <section className="space-y-3">
-              <h2 className="text-lg font-semibold">Details</h2>
-              <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {facts.map((fact) => (
-                  <div key={fact.label} className="rounded-lg border p-3">
-                    <dt className="text-xs text-muted-foreground">
+            {headlineFacts.length > 0 && (
+              <dl className="mt-6 grid grid-cols-2 gap-6 border-y py-5 sm:grid-cols-4">
+                {headlineFacts.map((fact) => (
+                  <div key={fact.label}>
+                    <dd className="text-2xl font-semibold">{fact.value}</dd>
+                    <dt className="text-sm text-muted-foreground">
                       {fact.label}
                     </dt>
-                    <dd className="mt-1 font-medium">{fact.value}</dd>
                   </div>
                 ))}
               </dl>
-            </section>
-          )}
+            )}
 
-          {property.description && (
-            <section className="space-y-3">
-              <h2 className="text-lg font-semibold">Description</h2>
-              <p className="whitespace-pre-line text-sm leading-6">
-                {property.description}
+            {extraFacts.length > 0 && (
+              <p className="mt-4 text-sm text-muted-foreground">
+                {extraFacts
+                  .map((fact) => `${fact.label}: ${fact.value}`)
+                  .join(" · ")}
               </p>
-            </section>
-          )}
+            )}
+          </div>
+
+          <div className="grid items-start gap-x-8 gap-y-6 md:grid-cols-[minmax(0,1fr)_18rem] lg:grid-cols-[minmax(0,1fr)_20rem]">
+            {property.listing_contact && (
+              <div className="self-start md:col-start-2 md:row-start-1">
+                <ListingContactCard
+                  contact={property.listing_contact}
+                  propertyTitle={property.title}
+                />
+              </div>
+            )}
+
+            {property.description && (
+              <section className="min-w-0 space-y-3 md:col-start-1 md:row-start-1">
+                <h2 className="text-lg font-semibold">Property details</h2>
+                <p className="whitespace-pre-line text-sm leading-6 text-muted-foreground">
+                  {property.description}
+                </p>
+              </section>
+            )}
+          </div>
 
           <Suspense fallback={<PropertyAmenitiesSkeleton />}>
             <PropertyAmenities propertyId={property.id} />
           </Suspense>
+
+          <Suspense fallback={<SimilarPropertiesSkeleton />}>
+            <SimilarProperties
+              property={{
+                id: property.id,
+                property_type: property.property_type,
+                listing_type: property.listing_type,
+                locality: property.locality,
+                nearest_town: property.nearest_town,
+                county: property.county,
+                price: property.price,
+              }}
+            />
+          </Suspense>
         </div>
 
-        {property.broker_name && (
-          <aside className="h-fit rounded-xl border p-5">
-            <p className="text-sm text-muted-foreground">Listed by</p>
-            <p className="mt-1 text-lg font-semibold">{property.broker_name}</p>
-          </aside>
-        )}
+      </div>
+        </div>
       </div>
     </main>
+  );
+}
+
+function ListingContactCard({
+  contact,
+  propertyTitle,
+}: {
+  contact: ListingContact;
+  propertyTitle: string;
+}) {
+  const phoneHref = contact.phone
+    ? `tel:${contact.phone.replace(/\s/g, "")}`
+    : null;
+  const whatsappNumber = contact.phone?.replace(/\D/g, "");
+  const whatsappHref = whatsappNumber
+    ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I'm interested in ${propertyTitle}.`)}`
+    : null;
+
+  return (
+    <aside className="flex min-w-0 flex-col gap-4 rounded-xl border bg-white p-4">
+      <div className="min-w-0 space-y-1">
+        <p className="text-xs text-muted-foreground">Listed by</p>
+        {contact.username ? (
+          <Link
+            href={`/agency/${encodeURIComponent(contact.username)}`}
+            className="block truncate font-semibold hover:underline"
+          >
+            {contact.name}
+          </Link>
+        ) : (
+          <p className="truncate font-semibold">{contact.name}</p>
+        )}
+        {contact.phone && phoneHref && (
+          <a href={phoneHref} className="block text-sm text-muted-foreground hover:underline">
+            {contact.phone}
+          </a>
+        )}
+        {contact.email && (
+          <a href={`mailto:${contact.email}`} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:underline">
+            <Mail className="h-3.5 w-3.5 shrink-0" />
+            <span className="break-all">{contact.email}</span>
+          </a>
+        )}
+        {contact.location && (
+          <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <MapPin className="h-3.5 w-3.5 shrink-0" />
+            {contact.location}
+          </p>
+        )}
+      </div>
+
+      <div className="flex min-w-0 flex-col gap-2">
+        {whatsappHref && (
+          <a
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border px-3 py-2 text-center text-sm font-medium hover:bg-muted"
+          >
+            <MessageCircle className="h-4 w-4" />
+            Message us on WhatsApp
+          </a>
+        )}
+        {phoneHref && (
+          <a
+            href={phoneHref}
+            className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-black px-4 text-sm font-medium text-white hover:bg-black/80"
+          >
+            <Phone className="h-4 w-4" />
+            Call
+          </a>
+        )}
+      </div>
+    </aside>
   );
 }
