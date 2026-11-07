@@ -46,6 +46,7 @@ export function NavAuth({ signedIn }: { signedIn: boolean }) {
     const supabase = createClient();
     await supabase.auth.signOut();
     await signOutAction();
+    router.replace("/auth/logout");
     router.refresh();
 
     signingOutRef.current = false;

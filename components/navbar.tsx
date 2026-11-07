@@ -2,6 +2,7 @@ import { Logo } from "@/components/logo";
 import { NavAuth } from "@/components/nav-auth";
 import { NavMenu } from "@/components/nav-menu";
 import { NavigationSheet } from "@/components/navigation-sheet";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import { createClient } from "@/lib/supabase/server";
 
 export async function Navbar() {
@@ -17,6 +18,7 @@ export async function Navbar() {
         <NavMenu className="hidden md:block" />
 
         <div className="flex items-center gap-3">
+          <ThemeSwitcher />
           <NavAuth signedIn={Boolean(data?.claims)} />
 
           {/* Mobile Menu */}

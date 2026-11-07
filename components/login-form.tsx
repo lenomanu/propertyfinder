@@ -15,6 +15,8 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { HouseIllustration } from "@/components/auth/house-illustration";
+import { GoogleAuthOption } from "@/components/auth/google-auth-option";
 
 export function LoginForm({
   className,
@@ -49,25 +51,29 @@ export function LoginForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>
-            Enter your email below to login to your account
+      <Card className="rounded-2xl border-border/80 bg-card p-4 shadow-sm sm:p-5">
+        <HouseIllustration />
+        <CardHeader className="px-1 pb-4 pt-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">Welcome back</p>
+          <CardTitle className="pt-1 text-2xl tracking-tight">Log in to your account</CardTitle>
+          <CardDescription className="text-[15px] leading-relaxed">
+            Continue to Property Finder with your account.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-1 pb-2">
+          <GoogleAuthOption />
           <form onSubmit={handleLogin}>
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-5">
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder="you@example.com"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="h-12 rounded-lg bg-background"
                 />
               </div>
               <div className="grid gap-2">
@@ -86,18 +92,19 @@ export function LoginForm({
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  className="h-12 rounded-lg bg-background"
                 />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Logging in..." : "Login"}
+              <Button type="submit" className="h-12 w-full rounded-lg" disabled={isLoading}>
+                {isLoading ? "Logging in..." : "Log in"}
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{" "}
               <Link
                 href="/auth/sign-up"
-                className="underline underline-offset-4"
+                className="font-medium text-primary underline-offset-4 hover:underline"
               >
                 Sign up
               </Link>

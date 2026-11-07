@@ -3,13 +3,13 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { Suspense } from "react";
 
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
 
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
-import { Suspense } from "react";
 import NavBarSkeleton from "@/components/nav-bar-skeleton";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -47,9 +47,7 @@ export default function RootLayout({
             <Suspense fallback={<NavBarSkeleton />}>
               <Navbar />
             </Suspense>
-
             {children}
-
             <Footer />
           </NuqsAdapter>
         </ThemeProvider>

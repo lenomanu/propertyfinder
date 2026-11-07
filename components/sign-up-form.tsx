@@ -15,6 +15,8 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { HouseIllustration } from "@/components/auth/house-illustration";
+import { GoogleAuthOption } from "@/components/auth/google-auth-option";
 
 export function SignUpForm({
   className,
@@ -58,14 +60,17 @@ export function SignUpForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Sign up</CardTitle>
-          <CardDescription>Create a new account</CardDescription>
+      <Card className="rounded-2xl border-border/80 bg-card p-4 shadow-sm sm:p-5">
+        <HouseIllustration />
+        <CardHeader className="px-1 pb-4 pt-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">Welcome to Property Finder</p>
+          <CardTitle className="pt-1 text-2xl tracking-tight">Create your account</CardTitle>
+          <CardDescription className="text-[15px] leading-relaxed">Find and manage property with one account.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-1 pb-2">
+          <GoogleAuthOption label="Sign up with Google" />
           <form onSubmit={handleSignUp}>
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-5">
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -75,6 +80,7 @@ export function SignUpForm({
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="h-12 rounded-lg bg-background"
                 />
               </div>
               <div className="grid gap-2">
@@ -87,6 +93,7 @@ export function SignUpForm({
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  className="h-12 rounded-lg bg-background"
                 />
               </div>
               <div className="grid gap-2">
@@ -99,10 +106,11 @@ export function SignUpForm({
                   required
                   value={repeatPassword}
                   onChange={(e) => setRepeatPassword(e.target.value)}
+                  className="h-12 rounded-lg bg-background"
                 />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="h-12 w-full rounded-lg" disabled={isLoading}>
                 {isLoading ? "Creating an account..." : "Sign up"}
               </Button>
             </div>

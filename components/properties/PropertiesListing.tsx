@@ -33,11 +33,22 @@ async function PropertiesResults({
   );
   const { page, pageSize, ...searchFilters } = filters;
 
-  const result = await getSearchedProperties(
+  const searchResult = await getSearchedProperties(
     searchFilters,
     { page, pageSize },
     { status }
   );
+  const shouldShowRelated =
+    searchFilters.search.trim().length > 0 &&
+    searchResult.success &&
+    searchResult.properties.length === 0;
+  const result = shouldShowRelated
+    ? await getSearchedProperties(
+        { ...searchFilters, search: "" },
+        { page, pageSize },
+        { status }
+      )
+    : searchResult;
 
   const title =
     status === "sold"
@@ -52,6 +63,21 @@ async function PropertiesResults({
           {result.total.toLocaleString()} properties found
         </p>
       </div>
+
+      {shouldShowRelated ? (
+        <div className="rounded-xl border bg-card px-4 py-3">
+          <h2 className="font-semibold">No properties matched “{searchFilters.search}”</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Here are related properties matching your other filters.
+          </p>
+        </div>
+      ) : null}
+
+      {!result.success ? (
+        <p role="status" className="rounded-xl border bg-card px-4 py-3 text-sm text-muted-foreground">
+          We couldn’t load properties right now. Please try again shortly.
+        </p>
+      ) : null}
 
       <PropertyGrid properties={result.properties} />
 

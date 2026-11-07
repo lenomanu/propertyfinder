@@ -149,9 +149,9 @@ async function PropertyDetails({ params }: Props) {
   const extraFacts = facts.slice(4);
 
   return (
-    <main className="bg-white">
+    <main className="bg-background">
       <div className="container mx-auto px-4 pb-6 pt-2 sm:px-6 lg:px-8">
-        <div className="rounded-3xl bg-white p-4 pt-2 shadow-sm sm:px-6 sm:pb-6 sm:pt-3 lg:px-8 lg:pb-8 lg:pt-4">
+        <div className="p-4 pt-2 sm:px-6 sm:pb-6 sm:pt-3 lg:px-8 lg:pb-8 lg:pt-4">
           <PropertyGallery
             images={images}
             title={property.title}
@@ -275,7 +275,7 @@ function ListingContactCard({
     : null;
 
   return (
-    <aside className="flex min-w-0 flex-col gap-4 rounded-xl border bg-white p-4">
+    <aside className="flex min-w-0 flex-col gap-4 rounded-xl border bg-card p-4">
       <div className="min-w-0 space-y-1">
         <p className="text-xs text-muted-foreground">Listed by</p>
         {contact.username ? (
@@ -322,7 +322,7 @@ function ListingContactCard({
         {phoneHref && (
           <a
             href={phoneHref}
-            className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-black px-4 text-sm font-medium text-white hover:bg-black/80"
+            className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
             <Phone className="h-4 w-4" />
             Call

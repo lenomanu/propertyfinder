@@ -229,10 +229,9 @@ export async function getSearchedProperties(
     // -----------------------------------------
 
     if (filters.propertyType) {
-      query = query.eq(
-        "property_type",
-        filters.propertyType
-      );
+      query = filters.propertyType === "home"
+        ? query.in("property_type", ["house", "apartment", "villa"])
+        : query.eq("property_type", filters.propertyType);
     }
 
     const locality = filters.locality?.trim();
