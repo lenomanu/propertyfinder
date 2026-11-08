@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Building2, MapPin, Search, Users } from "lucide-react";
+import { Suspense } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,7 +47,7 @@ function pageHref(page: number, town: string, agency: string) {
   return query ? `/find-agent?${query}` : "/find-agent";
 }
 
-export default async function FindAgentPage({
+async function FindAgentContent({
   searchParams,
 }: {
   searchParams: SearchParams;
@@ -285,5 +286,40 @@ export default async function FindAgentPage({
         ) : null}
       </section>
     </main>
+  );
+}
+
+function FindAgentLoading() {
+  return (
+    <main className="min-h-[calc(100vh-4rem)]">
+      <section className="border-b bg-gradient-to-br from-white via-[#f6f4f1] to-[#e8efec] dark:from-background dark:via-background dark:to-primary/10">
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="h-5 w-56 animate-pulse rounded bg-muted" />
+          <div className="mt-5 h-16 max-w-xl animate-pulse rounded-xl bg-muted" />
+          <div className="mt-4 h-6 max-w-lg animate-pulse rounded bg-muted" />
+          <div className="mt-8 h-14 max-w-3xl animate-pulse rounded-full bg-muted" />
+        </div>
+      </section>
+      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="h-8 w-72 animate-pulse rounded bg-muted" />
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: PAGE_SIZE }, (_, index) => (
+            <div key={index} className="h-40 animate-pulse rounded-2xl border bg-card" />
+          ))}
+        </div>
+      </section>
+    </main>
+  );
+}
+
+export default function FindAgentPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  return (
+    <Suspense fallback={<FindAgentLoading />}>
+      <FindAgentContent searchParams={searchParams} />
+    </Suspense>
   );
 }

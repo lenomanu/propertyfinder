@@ -1,16 +1,14 @@
 export const instant = false;
 
+import { Suspense } from "react";
+import { connection } from "next/server";
 import { getAllProperties } from '@/lib/properties/property';
-import React from 'react'
 
-async function page() {
+async function DebugResults() {
+    await connection();
     const result = await getAllProperties();
 
-if (result.success) {
-  console.log(result.properties);
-}
   return (
-    
     <div>
       Debug Page
       <pre>{JSON.stringify(result, null, 2)}</pre>
@@ -18,4 +16,14 @@ if (result.success) {
   )
 }
 
-export default page
+function DebugLoading() {
+  return <div>Loading property debug data…</div>;
+}
+
+export default function DebugPage() {
+  return (
+    <Suspense fallback={<DebugLoading />}>
+      <DebugResults />
+    </Suspense>
+  );
+}

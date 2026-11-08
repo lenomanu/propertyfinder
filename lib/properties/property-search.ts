@@ -1,6 +1,7 @@
 
 import "server-only";
 
+import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 import type {
@@ -422,6 +423,8 @@ export async function getPropertyLocalities(
   status: "approved" | "sold" = "approved",
   scope: { agencyId?: string; agencyUserId?: string } = {}
 ): Promise<string[]> {
+  await connection();
+
   try {
     const supabase = await createClient();
 
