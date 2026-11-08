@@ -18,9 +18,27 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Property Finder",
+  title: {
+    default: "Property Team",
+    template: "%s | Property Team",
+  },
   description:
-    "The Property Finder is a web application that allows users to search for properties and view property details.",
+    "Find properties for sale and rent, explore neighborhoods, and connect with trusted agents on Property Team.",
+  openGraph: {
+    type: "website",
+    siteName: "Property Team",
+    title: "Property Team",
+    description:
+      "Find your place and connect with trusted property professionals.",
+    images: ["/opengraph-image"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Property Team",
+    description:
+      "Find your place and connect with trusted property professionals.",
+    images: ["/opengraph-image"],
+  },
 };
 
 const geistSans = Geist({
