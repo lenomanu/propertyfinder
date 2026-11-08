@@ -11,9 +11,10 @@ import "leaflet/dist/leaflet.css";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import NavBarSkeleton from "@/components/nav-bar-skeleton";
+import { getSiteOrigin } from "@/lib/site-url";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://propertyteam.co.ke"),
+  metadataBase: new URL(getSiteOrigin()),
   title: "Property Team",
   description:
     "Property Team helps you search for properties and view property details across Kenya.",

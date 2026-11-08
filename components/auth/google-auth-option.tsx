@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
+import { getSiteOrigin } from "@/lib/site-url";
 
 export function GoogleAuthOption({ label = "Continue with Google" }: { label?: string }) {
   const [notice, setNotice] = useState<string | null>(null);
@@ -16,7 +17,7 @@ export function GoogleAuthOption({ label = "Continue with Google" }: { label?: s
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${getSiteOrigin(window.location.origin)}/auth/callback`,
       },
     });
 
