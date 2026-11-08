@@ -12,15 +12,11 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import NavBarSkeleton from "@/components/nav-bar-skeleton";
 
-const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(defaultUrl),
-  title: "Property Finder",
+  metadataBase: new URL("https://propertyteam.co.ke"),
+  title: "Property Team",
   description:
-    "The Property Finder is a web application that allows users to search for properties and view property details.",
+    "Property Team helps you search for properties and view property details across Kenya.",
 };
 
 const geistSans = Geist({

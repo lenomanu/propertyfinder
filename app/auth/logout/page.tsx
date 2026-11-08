@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const metadata: Metadata = {
-  title: "Signed out | Property Finder",
+  title: "Signed out | Property Team",
   robots: { index: false, follow: false },
 };
 
@@ -19,7 +19,7 @@ export default function LogoutPage() {
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">See you next time</p>
           <CardTitle className="pt-1 text-2xl tracking-tight">You’re signed out</CardTitle>
           <CardDescription className="text-[15px] leading-relaxed">
-            You have safely signed out of your Property Finder account.
+            You have safely signed out of your Property Team account.
           </CardDescription>
         </CardHeader>
         <CardContent className="px-1 pb-2">

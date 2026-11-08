@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,8 +14,10 @@ import { Logo } from "@/components/logo";
 import { NavMenu } from "@/components/nav-menu";
 
 export const NavigationSheet = () => {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <VisuallyHidden>
         <SheetTitle>Navigation Menu</SheetTitle>
       </VisuallyHidden>
@@ -23,8 +28,14 @@ export const NavigationSheet = () => {
         </Button>
       </SheetTrigger>
       <SheetContent className="px-6 py-3">
-        <Logo />
-        <NavMenu className="mt-6 [&>div]:h-full" orientation="vertical" />
+        <div onClick={() => setOpen(false)}>
+          <Logo />
+        </div>
+        <NavMenu
+          className="mt-6 [&>div]:h-full"
+          orientation="vertical"
+          onNavigate={() => setOpen(false)}
+        />
       </SheetContent>
     </Sheet>
   );

@@ -40,8 +40,7 @@ export function LoginForm({
         password,
       });
       if (error) throw error;
-      // Update this route to redirect to an authenticated route. The user already has an active session.
-      router.push("/protected");
+      router.push("/");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
@@ -57,7 +56,7 @@ export function LoginForm({
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">Welcome back</p>
           <CardTitle className="pt-1 text-2xl tracking-tight">Log in to your account</CardTitle>
           <CardDescription className="text-[15px] leading-relaxed">
-            Continue to Property Finder with your account.
+            Continue to Property Team with your account.
           </CardDescription>
         </CardHeader>
         <CardContent className="px-1 pb-2">

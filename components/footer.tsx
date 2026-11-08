@@ -68,7 +68,7 @@ const Footer = () => {
           <span className="text-primary-foreground/70">
             &copy; 2026{" "}
             <Link href="/" className="text-primary-foreground">
-              Property Finder
+              Property Team
             </Link>
             . All rights reserved.
           </span>

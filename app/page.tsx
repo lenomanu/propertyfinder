@@ -7,7 +7,7 @@ import { getPropertyLocalities } from "@/lib/properties/property-search";
 export const metadata: Metadata = {
   title: "Find Property in Kenya | Homes for Sale and Rent",
   description:
-    "Search property for sale or rent across Kenya. Find property in Nairobi, Mombasa, Kiambu and more with Property Finder.",
+    "Search property for sale or rent across Kenya. Find property in Nairobi, Mombasa, Kiambu and more with Property Team.",
   keywords: [
     "property in Kenya",
     "houses for sale in Kenya",

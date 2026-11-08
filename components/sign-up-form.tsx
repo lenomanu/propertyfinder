@@ -46,7 +46,7 @@ export function SignUpForm({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/protected`,
+          emailRedirectTo: `${window.location.origin}/auth/confirm`,
         },
       });
       if (error) throw error;
@@ -63,7 +63,7 @@ export function SignUpForm({
       <Card className="rounded-2xl border-border/80 bg-card p-4 shadow-sm sm:p-5">
         <HouseIllustration />
         <CardHeader className="px-1 pb-4 pt-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">Welcome to Property Finder</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">Welcome to Property Team</p>
           <CardTitle className="pt-1 text-2xl tracking-tight">Create your account</CardTitle>
           <CardDescription className="text-[15px] leading-relaxed">Find and manage property with one account.</CardDescription>
         </CardHeader>

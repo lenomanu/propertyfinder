@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { city } = await params;
   const name = cityTitle(city);
   return {
-    title: `Property for Rent in ${name}, Kenya | Property Finder`,
+    title: `Property for Rent in ${name}, Kenya | Property Team`,
     description: `Find houses and apartments for rent in ${name}, Kenya. Browse available rental properties and explore your next home.`,
   };
 }
