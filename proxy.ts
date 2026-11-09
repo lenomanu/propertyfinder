@@ -1,7 +1,19 @@
 import { updateSession } from "@/lib/supabase/proxy";
-import { type NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
 export async function proxy(request: NextRequest) {
+  // Supabase can fall back to its Site URL when redirectTo is not allowlisted.
+  // If that URL is the app root, send the PKCE code through the session exchange
+  // route before rendering the homepage.
+  if (
+    request.nextUrl.pathname === "/" &&
+    request.nextUrl.searchParams.has("code")
+  ) {
+    const callbackUrl = request.nextUrl.clone();
+    callbackUrl.pathname = "/auth/callback";
+    return NextResponse.redirect(callbackUrl);
+  }
+
   return await updateSession(request);
 }
 
