@@ -57,7 +57,11 @@ export default function HomePropertySearch({ localities }: { localities: string[
         : /\b(for sale|to buy|buy)\b/.test(submittedIntent)
           ? "sale"
           : mode;
-    const route = effectiveMode === "sold" ? "sold" : effectiveMode === "rent" ? "rent" : "sale";
+    const route = effectiveMode === "sold"
+      ? "/properties-sold"
+      : effectiveMode === "rent"
+        ? "/properties-for-rent"
+        : "/properties-for-sale";
     const params = new URLSearchParams();
 
     if (effectiveMode !== "sold") params.set("listingType", effectiveMode);
@@ -65,12 +69,13 @@ export default function HomePropertySearch({ localities }: { localities: string[
     if (parsed.bathrooms) params.set("bathrooms", parsed.bathrooms);
     if (parsed.propertyType) params.set("propertyType", parsed.propertyType);
     if (parsed.search) params.set("search", parsed.search);
-    params.set("page", "1");
+    if (params.size > 0) params.set("page", "1");
 
     const locationPath = parsed.location
       ? `/${encodeURIComponent(parsed.location.toLowerCase().replace(/\s+/g, "-"))}`
       : "";
-    router.push(`/properties-for-${route}${locationPath}?${params.toString()}`);
+    const searchParams = params.toString();
+    router.push(`${route}${locationPath}${searchParams ? `?${searchParams}` : ""}`);
   }
 
   return (
