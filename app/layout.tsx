@@ -33,7 +33,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.className} antialiased`}>
+      <body
+        className={`${geistSans.className} flex min-h-dvh flex-col antialiased`}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -44,7 +46,7 @@ export default function RootLayout({
             <Suspense fallback={<NavBarSkeleton />}>
               <Navbar />
             </Suspense>
-            {children}
+            <div className="flex-1">{children}</div>
             <Footer />
           </NuqsAdapter>
         </ThemeProvider>

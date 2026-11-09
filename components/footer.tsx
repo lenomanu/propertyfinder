@@ -37,7 +37,7 @@ const Footer = () => {
       <div className="mx-auto max-w-(--breakpoint-xl)">
         <div className="flex flex-col items-start justify-between gap-x-8 gap-y-10 px-6 py-12 sm:flex-row">
           <div>
-            <Logo className="text-primary-foreground" />
+            <Logo className="rounded-md bg-white px-1 py-0.5" />
 
             <ul className="mt-6 flex flex-wrap items-center gap-4">
               {footerLinks.map(({ title, href }) => (
