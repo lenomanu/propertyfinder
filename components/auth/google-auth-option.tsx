@@ -3,29 +3,32 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
-import { getSiteOrigin } from "@/lib/site-url";
+import { getURL } from "@/lib/site-url";
 
 export function GoogleAuthOption({ label = "Continue with Google" }: { label?: string }) {
   const [notice, setNotice] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true);
-    setNotice(null);
+ const handleGoogleSignIn = async () => {
+  setIsLoading(true);
+  setNotice(null);
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${getSiteOrigin(window.location.origin)}/auth/callback`,
-      },
-    });
+  const supabase = createClient();
 
-    if (error) {
-      setNotice(error.message);
-      setIsLoading(false);
-    }
-  };
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${getURL()}auth/callback`,
+    },
+  });
+
+  if (error) {
+    setNotice(error.message);
+    setIsLoading(false);
+  }
+  console.log("OAuth redirect:", `${getURL()}auth/callback`);
+console.log("Current origin:", window.location.origin);
+};
 
   return (
     <div>
