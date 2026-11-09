@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getSiteOrigin } from "@/lib/site-url";
+import { getURL } from "@/lib/site-url";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const next = requestedNext.startsWith("/") && !requestedNext.startsWith("//")
     ? requestedNext
     : "/";
-  const siteOrigin = getSiteOrigin(request.nextUrl.origin);
+  const siteOrigin = getURL();
 
   if (code) {
     const supabase = await createClient();
