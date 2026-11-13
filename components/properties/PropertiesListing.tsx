@@ -13,6 +13,7 @@ import {
   loadPropertySearchParamsFor,
   type ListingType,
 } from "@/lib/properties/property-search-params";
+import { listingSearchHeadline } from "@/lib/seo/listing-search-metadata";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -53,7 +54,13 @@ async function PropertiesResults({
   const title =
     status === "sold"
       ? "Properties sold"
-      : `Properties for ${filters.listingType === "sale" ? "sale" : "rent"}`;
+      : listingSearchHeadline(filters, {
+          listingType: filters.listingType,
+          basePath:
+            filters.listingType === "rent"
+              ? "/properties-for-rent"
+              : "/properties-for-sale",
+        });
 
   return (
     <div className="space-y-6">

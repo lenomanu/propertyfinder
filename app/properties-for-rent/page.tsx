@@ -1,24 +1,22 @@
 import type { Metadata } from "next";
 import PropertiesListing from "@/components/properties/PropertiesListing";
-import { pageMetadata } from "@/lib/seo/metadata";
-
-export const metadata: Metadata = pageMetadata({
-  title: "Property for Rent in Kenya",
-  description:
-    "Find houses and apartments for rent across Kenya. Search rental listings by town, price, and property type on Property Team.",
-  path: "/properties-for-rent",
-  keywords: [
-    "property for rent Kenya",
-    "houses for rent",
-    "apartments for rent Nairobi",
-  ],
-});
+import { listingSearchMetadata } from "@/lib/seo/listing-search-metadata";
 
 export const instant = false;
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
+
+export async function generateMetadata({
+  searchParams,
+}: Props): Promise<Metadata> {
+  return listingSearchMetadata(
+    searchParams,
+    "rent",
+    "/properties-for-rent"
+  );
+}
 
 export default function PropertiesForRentPage({ searchParams }: Props) {
   return (
