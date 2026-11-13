@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const metadata: Metadata = {
-  title: "Signed out | Property Team",
-  robots: { index: false, follow: false },
+  title: "Signed out",
 };
 
 export default function LogoutPage() {

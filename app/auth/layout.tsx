@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Logo } from "@/components/logo";
+import { noIndexRobots } from "@/lib/seo/metadata";
+
+export const metadata: Metadata = {
+  robots: noIndexRobots,
+};
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (

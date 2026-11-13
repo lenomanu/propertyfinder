@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 
 import { AuthButton } from "@/components/auth-button";
+import { noIndexRobots } from "@/lib/seo/metadata";
+
+export const metadata: Metadata = {
+  robots: noIndexRobots,
+};
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { hasEnvVars } from "@/lib/utils";
 import Link from "next/link";

@@ -1,6 +1,7 @@
-export const instant = false;
-
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+
+import { getPublicImageUrl } from "@/lib/cloudflare/public-image-url";
 
 import AgencyListingTabs from "@/components/properties/AgencyListingTabs";
 import AgencyProfileHeader from "@/components/properties/AgencyProfileHeader";
@@ -13,11 +14,45 @@ import {
   getSearchedProperties,
 } from "@/lib/properties/property-search";
 import { loadPropertySearchParamsFor } from "@/lib/properties/property-search-params";
+import { pageMetadata } from "@/lib/seo/metadata";
+
+export const instant = false;
 
 type Props = {
   params: Promise<{ username: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { username } = await params;
+  const agency = await getApprovedAgencyByUsername(username);
+
+  if (!agency) {
+    return { title: "Agency not found" };
+  }
+
+  const location = [agency.town, agency.location].filter(Boolean).join(", ");
+  const title = `${agency.name} – Real estate agency in Kenya`;
+  const description = location
+    ? `${agency.name} lists property for sale and rent in ${location}, Kenya. View active listings on Property Team.`
+    : `${agency.name} lists property for sale and rent across Kenya. View active listings on Property Team.`;
+
+  let image: string | null = null;
+  if (agency.profileImageUrl) {
+    try {
+      image = getPublicImageUrl(agency.profileImageUrl);
+    } catch {
+      image = null;
+    }
+  }
+
+  return pageMetadata({
+    title,
+    description,
+    path: `/agency/${encodeURIComponent(username)}`,
+    image,
+  });
+}
 
 function requestedStatus(value: string | string[] | undefined) {
   return value === "sold" || (Array.isArray(value) && value[0] === "sold")

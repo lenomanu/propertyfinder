@@ -1,7 +1,16 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import {
+  Bath,
+  BedDouble,
+  CarFront,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Phone,
+} from "lucide-react";
 
 import PropertyAmenities from "@/components/properties/PropertyAmenities";
 import PropertyAmenitiesSkeleton from "@/components/properties/PropertyAmenitiesSkeleton";
@@ -10,14 +19,30 @@ import PropertyShareButton from "@/components/properties/PropertyShareButton";
 import SimilarProperties from "@/components/properties/SimilarProperties";
 import SimilarPropertiesSkeleton from "@/components/properties/SimilarPropertiesSkeleton";
 import { getPublicImageUrl } from "@/lib/cloudflare/public-image-url";
+import { getURL } from "@/lib/site-url";
 import {
   getPropertyBySlug,
   type ListingContact,
 } from "@/lib/properties/property";
+import { JsonLd } from "@/lib/seo/json-ld";
+import { buildPropertyJsonLd } from "@/lib/seo/property-json-ld";
+import {
+  primaryPropertyImageUrl,
+  propertyPageMetadata,
+} from "@/lib/seo/property-page-metadata";
 
 type Props = {
   params: Promise<{ slug: string }>;
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const property = await getPropertyBySlug(slug);
+  if (!property) {
+    return { title: "Property not found" };
+  }
+  return propertyPageMetadata(property, slug);
+}
 
 const PROPERTY_TYPE_LABELS: Record<string, string> = {
   house: "House",
@@ -107,7 +132,7 @@ async function PropertyDetails({ params }: Props) {
       ? { label: "Bathrooms", value: String(details.bathrooms) }
       : null,
     details?.car_ports != null
-      ? { label: "Parking", value: String(details.car_ports) }
+      ? { label: "Carport", value: String(details.car_ports) }
       : null,
     details?.floor_area != null
       ? {
@@ -138,18 +163,25 @@ async function PropertyDetails({ params }: Props) {
   const location = [property.locality, property.nearest_town, property.county]
     .filter(Boolean)
     .join(", ");
+  const propertyUrl = new URL(`/${encodeURIComponent(slug)}`, getURL()).toString();
+  const primaryImage = primaryPropertyImageUrl(property);
 
-  const floorArea = details?.floor_area;
-  const pricePerArea =
-    floorArea != null && floorArea > 0
-      ? `${formatPrice(property.price / floorArea, property.currency)} / ${details?.floor_area_unit ?? "unit"}`
-      : null;
-
-  const headlineFacts = facts.slice(0, 4);
-  const extraFacts = facts.slice(4);
+  const headlineFacts = facts.filter((fact) =>
+    ["Bedrooms", "Bathrooms", "Carport"].includes(fact.label),
+  );
+  const extraFacts = facts.filter(
+    (fact) => !["Bedrooms", "Bathrooms", "Carport"].includes(fact.label),
+  );
 
   return (
     <main className="bg-background">
+      <JsonLd
+        data={buildPropertyJsonLd({
+          property,
+          slug,
+          primaryImageUrl: primaryImage,
+        })}
+      />
       <div className="container mx-auto px-4 pb-6 pt-2 sm:px-6 lg:px-8">
         <div className="p-4 pt-2 sm:px-6 sm:pb-6 sm:pt-3 lg:px-8 lg:pb-8 lg:pt-4">
           <PropertyGallery
@@ -162,45 +194,57 @@ async function PropertyDetails({ params }: Props) {
       <div className="mt-8">
         <div className="min-w-0 space-y-8">
           <div>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div className="flex min-w-0 items-start justify-between gap-3">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
                 <h1 className="max-w-xl text-3xl font-semibold tracking-tight">
                   {property.title}
                 </h1>
-                <PropertyShareButton title={property.title} />
-              </div>
-              <div className="sm:text-right">
-                <p className="text-3xl font-semibold tracking-tight">
-                  {formatPrice(property.price, property.currency)}
-                </p>
-                {property.price_period && property.price_period !== "once" && (
-                  <p className="text-sm text-muted-foreground">
-                    / {property.price_period}
+                {location && (
+                  <p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+                    <MapPin className="h-4 w-4 shrink-0" />
+                    {location}
                   </p>
                 )}
-                {pricePerArea && (
-                  <p className="text-sm text-muted-foreground">{pricePerArea}</p>
-                )}
+              </div>
+              <div className="flex shrink-0 flex-col items-start gap-3 sm:items-end">
+                <PropertyShareButton title={property.title} />
+                <div className="sm:text-right">
+                  <p className="text-3xl font-semibold tracking-tight">
+                    {formatPrice(property.price, property.currency)}
+                  </p>
+                  {property.price_period && property.price_period !== "once" && (
+                    <p className="text-sm text-muted-foreground">
+                      / {property.price_period}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
 
-            {location && (
-              <p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4 shrink-0" />
-                {location}
-              </p>
-            )}
-
             {headlineFacts.length > 0 && (
-              <dl className="mt-6 grid grid-cols-2 gap-6 border-y py-5 sm:grid-cols-4">
-                {headlineFacts.map((fact) => (
-                  <div key={fact.label}>
-                    <dd className="text-2xl font-semibold">{fact.value}</dd>
-                    <dt className="text-sm text-muted-foreground">
-                      {fact.label}
-                    </dt>
-                  </div>
-                ))}
+              <dl className="mt-6 grid grid-cols-2 gap-4 border-y py-5 sm:grid-cols-3 sm:gap-6">
+                {headlineFacts.map((fact) => {
+                  const Icon = fact.label === "Bedrooms"
+                    ? BedDouble
+                    : fact.label === "Bathrooms"
+                      ? Bath
+                      : CarFront;
+
+                  return (
+                    <div key={fact.label} className="flex items-center gap-3">
+                      <Icon
+                        aria-hidden="true"
+                        className="size-5 shrink-0 text-primary"
+                      />
+                      <div>
+                        <dt className="text-sm text-muted-foreground">
+                          {fact.label}
+                        </dt>
+                        <dd className="text-xl font-semibold">{fact.value}</dd>
+                      </div>
+                    </div>
+                  );
+                })}
               </dl>
             )}
 
@@ -219,6 +263,7 @@ async function PropertyDetails({ params }: Props) {
                 <ListingContactCard
                   contact={property.listing_contact}
                   propertyTitle={property.title}
+                  propertyUrl={propertyUrl}
                 />
               </div>
             )}
@@ -262,16 +307,18 @@ async function PropertyDetails({ params }: Props) {
 function ListingContactCard({
   contact,
   propertyTitle,
+  propertyUrl,
 }: {
   contact: ListingContact;
   propertyTitle: string;
+  propertyUrl: string;
 }) {
   const phoneHref = contact.phone
     ? `tel:${contact.phone.replace(/\s/g, "")}`
     : null;
   const whatsappNumber = contact.phone?.replace(/\D/g, "");
   const whatsappHref = whatsappNumber
-    ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I'm interested in ${propertyTitle}.`)}`
+    ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I'm interested in ${propertyTitle}. Could you please share more details?\n${propertyUrl}`)}`
     : null;
 
   return (

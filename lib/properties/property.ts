@@ -1,5 +1,7 @@
 import "server-only";
 
+import { cache } from "react";
+
 import { createClient } from "@/lib/supabase/server";
 
 import type {
@@ -306,7 +308,7 @@ function one<T>(value: T | T[] | null | undefined): T | null {
   return value ?? null;
 }
 
-export async function getPropertyBySlug(
+export const getPropertyBySlug = cache(async function getPropertyBySlug(
   slug: string
 ): Promise<PropertyDetail | null> {
   const cleanSlug = slug.trim();
@@ -429,7 +431,7 @@ export async function getPropertyBySlug(
     console.error("[getPropertyBySlug] Unexpected error:", error);
     return null;
   }
-}
+});
 
 export async function getPropertyAmenities(
   propertyId: string

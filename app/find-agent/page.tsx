@@ -1,4 +1,19 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { pageMetadata } from "@/lib/seo/metadata";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Find a Real Estate Agent in Kenya",
+  description:
+    "Search approved real estate agencies and agents across Kenya. Connect with professionals listing property on Property Team.",
+  path: "/find-agent",
+  keywords: [
+    "real estate agent Kenya",
+    "property agent Nairobi",
+    "estate agency Kenya",
+  ],
+});
+
 import { ArrowRight, Building2, MapPin, Search, Users } from "lucide-react";
 import { Suspense } from "react";
 

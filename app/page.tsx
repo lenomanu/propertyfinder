@@ -3,11 +3,16 @@ import Link from "next/link";
 import { Suspense } from "react";
 import HomePropertySearch from "@/components/home-property-search";
 import { getPropertyLocalities } from "@/lib/properties/property-search";
+import { JsonLd } from "@/lib/seo/json-ld";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { buildWebsiteJsonLd } from "@/lib/seo/property-json-ld";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Find Property in Kenya | Homes for Sale and Rent",
   description:
     "Search property for sale or rent across Kenya. Find property in Nairobi, Mombasa, Kiambu and more with Property Team.",
+  path: "/",
+  titleAbsolute: true,
   keywords: [
     "property in Kenya",
     "houses for sale in Kenya",
@@ -15,13 +20,14 @@ export const metadata: Metadata = {
     "apartments in Nairobi",
     "land for sale in Kenya",
   ],
-};
+});
 
 export const instant = false;
 
 export default function Home() {
   return (
     <main>
+      <JsonLd data={buildWebsiteJsonLd()} />
       <Suspense fallback={<HomeFallback />}>
         <HomeContent />
       </Suspense>

@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import { Suspense } from "react"
 import { redirect } from "next/navigation"
+import { noIndexRobots } from "@/lib/seo/metadata";
+
+export const metadata: Metadata = {
+  robots: noIndexRobots,
+};
 import { ThemeProvider } from "next-themes"
 import { Sidebar } from "./components/agent-sidebar"
 import { GetRole } from "@/app/auth/get-role-jwt"
