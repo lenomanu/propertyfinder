@@ -1,19 +1,18 @@
 import type { Metadata } from "next";
 import PropertiesListing from "@/components/properties/PropertiesListing";
-import { pageMetadata } from "@/lib/seo/metadata";
-
-export const metadata: Metadata = pageMetadata({
-  title: "Sold Property in Kenya",
-  description:
-    "Browse sold property listings across Kenya. See what homes and land have sold and compare neighbourhoods on Property Team.",
-  path: "/properties-sold",
-});
+import { listingSearchMetadata } from "@/lib/seo/listing-search-metadata";
 
 export const instant = false;
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
+
+export async function generateMetadata({
+  searchParams,
+}: Props): Promise<Metadata> {
+  return listingSearchMetadata(searchParams, "sale", "/properties-sold", undefined, true);
+}
 
 export default function PropertiesSoldPage({ searchParams }: Props) {
   return (

@@ -1,34 +1,13 @@
 import Link from "next/link";
 import { Logo } from "@/components/logo";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 
 const footerLinks = [
-  {
-    title: "Overview",
-    href: "#",
-  },
-  {
-    title: "Features",
-    href: "#",
-  },
-  {
-    title: "Pricing",
-    href: "#",
-  },
-  {
-    title: "Agent admin",
-    href: "/agent",
-  },
-  {
-    title: "Help 2 Support",
-    href: "#",
-  },
-  {
-    title: "Privacy",
-    href: "#",
-  },
+  { title: "Homes for sale", href: "/properties-for-sale" },
+  { title: "Homes for rent", href: "/properties-for-rent" },
+  { title: "Sold property", href: "/properties-sold" },
+  { title: "Find an agent", href: "/find-agent" },
+  { title: "List with us", href: "/sell" },
 ];
 
 const Footer = () => {
@@ -38,7 +17,10 @@ const Footer = () => {
         <div className="flex flex-col items-start justify-between gap-x-8 gap-y-10 px-6 py-12 sm:flex-row">
           <div>
             <Logo className="rounded-md bg-white px-1 py-0.5" />
-
+            <p className="mt-4 max-w-md text-sm text-primary-foreground/80">
+              Property Team helps buyers, renters, and agents discover property
+              across Kenya with verified listings and local expertise.
+            </p>
             <ul className="mt-6 flex flex-wrap items-center gap-4">
               {footerLinks.map(({ title, href }) => (
                 <li key={title}>
@@ -52,19 +34,9 @@ const Footer = () => {
               ))}
             </ul>
           </div>
-
-          {/* Subscribe Newsletter */}
-          <div className="w-full max-w-xs">
-          <h6 className="font-medium">Stay up to date</h6>
-            <form className="mt-6 flex items-center gap-2">
-              <Input placeholder="Enter your email" type="email" />
-              <Button variant="secondary" className="shrink-0">Subscribe</Button>
-            </form>
-          </div>
         </div>
         <Separator />
-        <div className="flex justify-center my-4">
-          {/* Copyright */}
+        <div className="my-4 flex justify-center">
           <span className="text-primary-foreground/70">
             &copy; 2026{" "}
             <Link href="/" className="text-primary-foreground">

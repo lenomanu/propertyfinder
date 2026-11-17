@@ -21,14 +21,14 @@ export default function PendingApprovals({
     {
       label: "Property listings",
       count: stats.pendingProperties,
-      href: "/admin/approvals",
+      href: "/admin/properties/pending",
       icon: House,
       color: "bg-amber-100 text-amber-700",
     },
     {
       label: "Agency applications",
       count: stats.pendingAgencies ?? 0,
-      href: "/admin/agencies",
+      href: "/admin/agencies/pending",
       icon: Building2,
       color: "bg-violet-100 text-violet-700",
     },
@@ -93,7 +93,7 @@ export default function PendingApprovals({
         )}
 
         <Button asChild variant="outline" className="w-full justify-between">
-          <Link href="/admin/approvals">
+          <Link href="/admin/properties/pending">
             Open approval queue
             <ArrowRight className="size-4" />
           </Link>

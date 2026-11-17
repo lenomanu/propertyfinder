@@ -16,7 +16,7 @@ export async function getCurrentUser(
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    redirect("/login");
+    redirect("/auth/login");
   }
 
   const { data: profile, error } = await supabase

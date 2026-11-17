@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const location = [agency.town, agency.location].filter(Boolean).join(", ");
-  const title = `${agency.name} – Real estate agency in Kenya`;
+  const title = `${agency.name} – Kenya estate agency`;
   const description = location
     ? `${agency.name} lists property for sale and rent in ${location}, Kenya. View active listings on Property Team.`
     : `${agency.name} lists property for sale and rent across Kenya. View active listings on Property Team.`;

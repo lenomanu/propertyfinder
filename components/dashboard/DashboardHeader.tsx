@@ -37,7 +37,7 @@ export default function DashboardHeader({ role, fullName }: Props) {
       <div className="flex shrink-0 items-center gap-3">
         {role === "agent" ? (
           <Link
-            href="/agent/agency"
+            href="/agent/team"
             className="flex items-center gap-3 rounded-xl border border-indigo-200 bg-white px-4 py-3 shadow-sm transition-colors hover:border-indigo-400 hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
           >
             <span className="rounded-lg bg-indigo-100 p-2 text-indigo-600">

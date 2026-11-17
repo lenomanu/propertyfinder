@@ -16,6 +16,7 @@ const STATIC_ROUTES: SitemapUrl[] = [
   { path: "/properties-for-rent", changeFrequency: "daily", priority: 0.9 },
   { path: "/properties-sold", changeFrequency: "weekly", priority: 0.6 },
   { path: "/find-agent", changeFrequency: "weekly", priority: 0.7 },
+  { path: "/sell", changeFrequency: "monthly", priority: 0.6 },
 ];
 
 type SitemapPropertyRow = {

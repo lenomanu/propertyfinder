@@ -105,7 +105,9 @@ function HomeFallback() {
           <div aria-hidden="true" className="absolute inset-0 bg-slate-950/45" />
           <div className="relative z-10 w-full max-w-4xl text-center">
             <p className="mb-4 text-sm font-semibold uppercase tracking-[0.22em] text-teal-200">Your next move starts here</p>
-            <h1 className="mx-auto max-w-3xl text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">Find property across Kenya</h1>
+            <p className="mx-auto max-w-3xl text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+              Find property across Kenya
+            </p>
             <p className="mx-auto mt-5 max-w-2xl text-base text-white/90 sm:text-lg">Search property for sale or rent in Nairobi, Mombasa and neighbourhoods across Kenya.</p>
             <div className="mx-auto mt-9 max-w-3xl text-left">
               <HomePropertySearch localities={[]} />

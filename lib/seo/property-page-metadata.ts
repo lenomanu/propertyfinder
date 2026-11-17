@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 
 import { getPublicImageUrl } from "@/lib/cloudflare/public-image-url";
 import type { PropertyDetail } from "@/lib/properties/property";
-import { pageMetadata, truncateMetaDescription } from "@/lib/seo/metadata";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { ensureMetaDescription, truncateTitle } from "@/lib/seo/text";
 
 const PROPERTY_TYPE_LABELS: Record<string, string> = {
   house: "House",
@@ -54,12 +55,13 @@ export function propertyPageMetadata(
     .join(", ");
   const price = formatPrice(property.price, property.currency);
 
+  const shortTitle = truncateTitle(property.title, 42);
   const title =
     property.status === "sold"
-      ? `${property.title} – Sold in ${location || "Kenya"}`
-      : `${property.title} – ${typeLabel} ${listing} in ${location || "Kenya"}`;
+      ? `${shortTitle} – sold in ${location || "Kenya"}`
+      : `${shortTitle} – ${typeLabel.toLowerCase()} ${listing} in ${location || "Kenya"}`;
 
-  const description = truncateMetaDescription(
+  const description = ensureMetaDescription(
     property.description?.trim() ||
       `${typeLabel} ${listing} in ${location || "Kenya"} at ${price}. View photos, features, and contact the listing agent on Property Team.`
   );

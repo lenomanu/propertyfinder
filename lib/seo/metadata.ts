@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { DEFAULT_DESCRIPTION, DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/seo/config";
+import { ensureMetaDescription, truncateTitle } from "@/lib/seo/text";
 import { absoluteUrl } from "@/lib/seo/urls";
 
 export const noIndexRobots: Metadata["robots"] = {
@@ -12,9 +13,7 @@ export function truncateMetaDescription(
   text: string,
   maxLength = 160
 ): string {
-  const cleaned = text.replace(/\s+/g, " ").trim();
-  if (cleaned.length <= maxLength) return cleaned;
-  return `${cleaned.slice(0, maxLength - 1).trimEnd()}…`;
+  return ensureMetaDescription(text, 0, maxLength);
 }
 
 type PageMetadataOptions = {
@@ -35,14 +34,16 @@ export function pageMetadata({
   keywords,
   image,
   robots,
-  titleAbsolute = false,
+  titleAbsolute = true,
 }: PageMetadataOptions): Metadata {
   const url = absoluteUrl(path);
   const ogImage = image?.trim() || DEFAULT_OG_IMAGE;
+  const seoTitle = truncateTitle(title);
+  const seoDescription = ensureMetaDescription(description);
 
   return {
-    title: titleAbsolute ? { absolute: title } : title,
-    description,
+    title: titleAbsolute ? { absolute: seoTitle } : seoTitle,
+    description: seoDescription,
     ...(keywords?.length ? { keywords } : {}),
     ...(robots ? { robots } : {}),
     alternates: {
@@ -53,19 +54,19 @@ export function pageMetadata({
       locale: "en_KE",
       url,
       siteName: SITE_NAME,
-      title,
-      description,
+      title: seoTitle,
+      description: seoDescription,
       images: [
         {
           url: ogImage,
-          alt: title,
+          alt: seoTitle,
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title,
-      description,
+      title: seoTitle,
+      description: seoDescription,
       images: [ogImage],
     },
   };

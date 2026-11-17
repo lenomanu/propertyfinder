@@ -39,13 +39,30 @@ export default async function CityPropertiesListing({
     { status: sold ? "sold" : "approved" },
   );
   const heading = sold
-    ? `Property sold in ${cityName}`
+    ? `Sold property in ${cityName}`
     : `Property for ${listingType === "rent" ? "rent" : "sale"} in ${cityName}`;
+
+  const siblingRentHref = `/properties-for-rent/${encodeURIComponent(city)}`;
+  const siblingSaleHref = `/properties-for-sale/${encodeURIComponent(city)}`;
+  const siblingSoldHref = `/properties-sold/${encodeURIComponent(city)}`;
 
   return (
     <main className="container mx-auto min-h-[55vh] space-y-6 px-4 py-10 sm:px-6 lg:px-8">
       <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
         <Link href="/" className="hover:text-foreground">Home</Link>
+        <span className="px-2">/</span>
+        <Link
+          href={
+            sold
+              ? "/properties-sold"
+              : listingType === "rent"
+                ? "/properties-for-rent"
+                : "/properties-for-sale"
+          }
+          className="hover:text-foreground"
+        >
+          {sold ? "Sold property" : listingType === "rent" ? "Rent" : "Buy"}
+        </Link>
         <span className="px-2">/</span>
         <span>{cityName}</span>
       </nav>
@@ -55,6 +72,39 @@ export default async function CityPropertiesListing({
           Browse {result.total.toLocaleString()} {sold ? "sold properties" : "homes and properties"} in {cityName}, Kenya.
         </p>
       </header>
+      <nav aria-label="Related property searches" className="flex flex-wrap gap-3 text-sm">
+        {!sold && listingType === "sale" ? (
+          <>
+            <Link href={siblingRentHref} className="text-primary hover:underline">
+              Rent in {cityName}
+            </Link>
+            <Link href={siblingSoldHref} className="text-primary hover:underline">
+              Sold in {cityName}
+            </Link>
+          </>
+        ) : null}
+        {!sold && listingType === "rent" ? (
+          <>
+            <Link href={siblingSaleHref} className="text-primary hover:underline">
+              Buy in {cityName}
+            </Link>
+            <Link href={siblingSoldHref} className="text-primary hover:underline">
+              Sold in {cityName}
+            </Link>
+          </>
+        ) : null}
+        {sold ? (
+          <>
+            <Link href={siblingSaleHref} className="text-primary hover:underline">
+              For sale in {cityName}
+            </Link>
+            <Link href={siblingRentHref} className="text-primary hover:underline">
+              For rent in {cityName}
+            </Link>
+          </>
+        ) : null}
+      </nav>
+
       {result.properties.length ? (
         <PropertyGrid properties={result.properties} />
       ) : (

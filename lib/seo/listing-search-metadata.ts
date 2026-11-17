@@ -6,7 +6,8 @@ import {
   type ListingType,
   type PropertySearchFilters,
 } from "@/lib/properties/property-search-params";
-import { pageMetadata, truncateMetaDescription } from "@/lib/seo/metadata";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { ensureMetaDescription, truncateTitle } from "@/lib/seo/text";
 
 const PROPERTY_TYPE_LABELS: Record<
   string,
@@ -31,6 +32,8 @@ type ListingSeoContext = {
   basePath: string;
   /** When set (city route), locality is fixed in the title and omitted from the query string when unchanged. */
   fixedLocality?: string;
+  /** Sold archive listings (properties-sold). */
+  sold?: boolean;
 };
 
 export type ListingSearchSeo = {
@@ -40,7 +43,8 @@ export type ListingSearchSeo = {
   pathWithQuery: string;
 };
 
-function listingIntent(listingType: ListingType) {
+function listingIntent(listingType: ListingType, sold?: boolean) {
+  if (sold) return "sold";
   return listingType === "rent" ? "for rent" : "for sale";
 }
 
@@ -143,13 +147,16 @@ export function buildListingSearchSeo(
   filters: PropertySearchFilters,
   context: ListingSeoContext
 ): ListingSearchSeo {
-  const intent = listingIntent(context.listingType);
+  const intent = listingIntent(context.listingType, context.sold);
   const locality =
     filters.locality?.trim() || context.fixedLocality?.trim() || "";
   const land = isLandType(filters.propertyType);
 
-  const defaultTitle =
-    context.listingType === "rent"
+  const defaultTitle = context.sold
+    ? locality
+      ? `Sold property in ${locality}, Kenya`
+      : "Sold property in Kenya"
+    : context.listingType === "rent"
       ? locality
         ? `Property for rent in ${locality}, Kenya`
         : "Property for rent in Kenya"
@@ -158,17 +165,21 @@ export function buildListingSearchSeo(
         : "Property for sale in Kenya";
 
   if (!hasFilterQuery(filters, context)) {
-    const description = locality
-      ? context.listingType === "rent"
-        ? `Find houses and apartments for rent in ${locality}, Kenya. Filter by price, bedrooms, bathrooms, and property type on Property Team.`
-        : `Find houses, apartments, and land for sale in ${locality}, Kenya. Compare prices and explore listings on Property Team.`
-      : context.listingType === "rent"
-        ? "Find houses and apartments for rent across Kenya. Filter by locality, price, bedrooms, and property type on Property Team."
-        : "Browse homes, apartments, land, and commercial property for sale across Kenya. Filter by location, price, and property type on Property Team.";
+    const description = context.sold
+      ? locality
+        ? `Browse sold homes and land in ${locality}, Kenya. Compare historical sale listings, prices, and neighbourhoods on Property Team.`
+        : "Browse sold property across Kenya. Review completed sales, compare neighbourhoods, and explore market activity on Property Team."
+      : locality
+        ? context.listingType === "rent"
+          ? `Find houses and apartments for rent in ${locality}, Kenya. Filter by price, bedrooms, bathrooms, and property type on Property Team.`
+          : `Find houses, apartments, and land for sale in ${locality}, Kenya. Compare prices and explore listings on Property Team.`
+        : context.listingType === "rent"
+          ? "Find houses and apartments for rent across Kenya. Filter by locality, price, bedrooms, and property type on Property Team."
+          : "Browse homes, apartments, land, and commercial property for sale across Kenya. Filter by location, price, and property type on Property Team.";
 
     return {
-      title: defaultTitle,
-      description,
+      title: truncateTitle(defaultTitle),
+      description: ensureMetaDescription(description),
       keywords: defaultKeywords(context.listingType, locality),
       pathWithQuery: context.basePath,
     };
@@ -229,15 +240,12 @@ export function buildListingSearchSeo(
     title = `${title}, Kenya`;
   }
 
-  title = title.replace(/\s+/g, " ").trim();
+  title = truncateTitle(title.replace(/\s+/g, " ").trim());
 
   const descriptionBits = [
-    truncateMetaDescription(
-      `Browse ${lead.toLowerCase()} ${intent}${
-        locality ? ` in ${locality}` : " across Kenya"
-      } on Property Team.`,
-      80
-    ),
+    `Browse ${lead.toLowerCase()} ${intent}${
+      locality ? ` in ${locality}` : " across Kenya"
+    } on Property Team.`,
   ];
 
   if (price) descriptionBits.push(price);
@@ -248,7 +256,7 @@ export function buildListingSearchSeo(
     descriptionBits.push(`Results matching “${filters.search.trim()}”.`);
   }
 
-  const description = truncateMetaDescription(descriptionBits.join(" "));
+  const description = ensureMetaDescription(descriptionBits.join(" "));
 
   const query = buildCanonicalQuery(filters, context);
   const pathWithQuery = query ? `${context.basePath}?${query}` : context.basePath;
@@ -324,13 +332,12 @@ export function listingSearchHeadline(
   filters: PropertySearchFilters,
   context: Omit<ListingSeoContext, "basePath"> & { basePath?: string }
 ): string {
-  const seo = buildListingSearchSeo(filters, {
+  return buildListingSearchSeo(filters, {
     basePath: context.basePath ?? "",
     listingType: context.listingType,
     fixedLocality: context.fixedLocality,
-  });
-
-  return seo.title.replace(/, Kenya$/i, "").replace(/\s+page \d+$/i, "");
+    sold: context.sold,
+  }).title.replace(/, Kenya$/i, "").replace(/\s+page \d+$/i, "");
 }
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -339,7 +346,8 @@ export async function listingSearchMetadata(
   searchParams: SearchParams,
   defaultListingType: ListingType,
   basePath: string,
-  fixedLocality?: string
+  fixedLocality?: string,
+  sold?: boolean
 ): Promise<Metadata> {
   const raw = await searchParams;
   const merged = fixedLocality
@@ -355,6 +363,7 @@ export async function listingSearchMetadata(
     basePath,
     listingType: defaultListingType,
     fixedLocality,
+    sold,
   });
 
   return pageMetadata({

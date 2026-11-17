@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import CityPropertiesListing from "@/components/properties/CityPropertiesListing";
-import { pageMetadata } from "@/lib/seo/metadata";
+import { listingSearchMetadata } from "@/lib/seo/listing-search-metadata";
 import { cityTitleFromSlug } from "@/lib/seo/urls";
 
 type Props = {
@@ -8,17 +8,20 @@ type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: Props): Promise<Metadata> {
   const { city } = await params;
   const name = cityTitleFromSlug(city);
-  const title = `Sold Property in ${name}, Kenya`;
-  const description = `See recently sold property in ${name}, Kenya. Explore sale prices and listing history on Property Team.`;
 
-  return pageMetadata({
-    title,
-    description,
-    path: `/properties-sold/${encodeURIComponent(city)}`,
-  });
+  return listingSearchMetadata(
+    searchParams,
+    "sale",
+    `/properties-sold/${encodeURIComponent(city)}`,
+    name,
+    true
+  );
 }
 
 export default async function CityPage({ params, searchParams }: Props) {

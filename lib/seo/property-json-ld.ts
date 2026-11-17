@@ -20,6 +20,14 @@ type BuildPropertyJsonLdOptions = {
   primaryImageUrl: string | null;
 };
 
+function stripUndefined(
+  value: Record<string, unknown>
+): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(value).filter(([, v]) => v !== undefined && v !== null)
+  );
+}
+
 export function buildPropertyJsonLd({
   property,
   slug,
@@ -27,38 +35,43 @@ export function buildPropertyJsonLd({
 }: BuildPropertyJsonLdOptions): Record<string, unknown> {
   const typeLabel =
     PROPERTY_TYPE_LABELS[property.property_type] ?? "Property";
-  const location = [property.locality, property.county]
-    .filter(Boolean)
-    .join(", ");
+  const pageUrl = absoluteUrl(`/${encodeURIComponent(slug)}`);
+  const description =
+    property.description?.trim() ||
+    `${typeLabel} ${
+      property.listing_type === "rent" ? "for rent" : "for sale"
+    } in ${[property.locality, property.county].filter(Boolean).join(", ") || "Kenya"}.`;
 
-  const offer: Record<string, unknown> = {
+  const offer = stripUndefined({
     "@type": "Offer",
-    price: property.price,
+    price: String(property.price),
     priceCurrency: property.currency === "USD" ? "USD" : "KES",
+    url: pageUrl,
     availability:
       property.status === "sold"
         ? "https://schema.org/SoldOut"
         : "https://schema.org/InStock",
-  };
+  });
 
-  return {
+  const postalAddress = stripUndefined({
+    "@type": "PostalAddress",
+    streetAddress: property.nearest_town ?? undefined,
+    addressLocality: property.locality ?? undefined,
+    addressRegion: property.county ?? undefined,
+    addressCountry: "Kenya",
+  });
+
+  return stripUndefined({
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
     name: property.title,
-    description: property.description ?? undefined,
-    url: absoluteUrl(`/${encodeURIComponent(slug)}`),
+    description,
+    url: pageUrl,
     ...(primaryImageUrl ? { image: [primaryImageUrl] } : {}),
     datePosted: property.created_at,
-    ...(property.updated_at ? { dateModified: property.updated_at } : {}),
-    ...(location
-      ? {
-          address: {
-            "@type": "PostalAddress",
-            addressLocality: property.locality ?? undefined,
-            addressRegion: property.county ?? undefined,
-            addressCountry: "KE",
-          },
-        }
+    dateModified: property.updated_at,
+    ...(Object.keys(postalAddress).length > 1
+      ? { address: postalAddress }
       : {}),
     ...(property.latitude != null && property.longitude != null
       ? {
@@ -70,29 +83,28 @@ export function buildPropertyJsonLd({
         }
       : {}),
     offers: offer,
-    additionalProperty: {
-      "@type": "PropertyValue",
-      name: "Property type",
-      value: typeLabel,
-    },
-  };
+  });
 }
 
 export function buildWebsiteJsonLd(): Record<string, unknown> {
+  const searchUrl = absoluteUrl("/properties-for-sale");
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "Property Team",
+    alternateName: "Propertyteam",
     url: absoluteUrl("/"),
     description:
       "Search property for sale and rent across Kenya with Property Team.",
     inLanguage: "en-KE",
+    publisher: {
+      "@type": "Organization",
+      name: "Property Team",
+      url: absoluteUrl("/"),
+    },
     potentialAction: {
       "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${absoluteUrl("/properties-for-sale")}?q={search_term_string}`,
-      },
+      target: `${searchUrl}?search={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
   };

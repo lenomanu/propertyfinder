@@ -78,7 +78,7 @@ export default function AgencyStatusCard({
         </div>
 
         <Button asChild className="shrink-0 bg-indigo-600 hover:bg-indigo-700">
-          <Link href="/agent/agency">
+          <Link href="/agent/team">
             <Pencil className="mr-2 size-4" />
             {agencyName ? "Edit Agency Profile" : "Set up agency"}
             <ArrowRight className="ml-2 size-4" />

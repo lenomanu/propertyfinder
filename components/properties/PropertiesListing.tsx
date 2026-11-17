@@ -51,16 +51,20 @@ async function PropertiesResults({
       )
     : searchResult;
 
-  const title =
-    status === "sold"
-      ? "Properties sold"
-      : listingSearchHeadline(filters, {
-          listingType: filters.listingType,
-          basePath:
-            filters.listingType === "rent"
-              ? "/properties-for-rent"
-              : "/properties-for-sale",
-        });
+  const isSold = status === "sold";
+  const title = isSold
+    ? listingSearchHeadline(filters, {
+        listingType: filters.listingType,
+        sold: true,
+        basePath: "/properties-sold",
+      })
+    : listingSearchHeadline(filters, {
+        listingType: filters.listingType,
+        basePath:
+          filters.listingType === "rent"
+            ? "/properties-for-rent"
+            : "/properties-for-sale",
+      });
 
   return (
     <div className="space-y-6">

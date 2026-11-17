@@ -5,6 +5,26 @@ const nextConfig = {
 
   poweredByHeader: false,
 
+  async redirects() {
+    return [
+      {
+        source: "/login",
+        destination: "/auth/login",
+        permanent: true,
+      },
+      {
+        source: "/admin/approvals",
+        destination: "/admin/properties/pending",
+        permanent: true,
+      },
+      {
+        source: "/agent/agency",
+        destination: "/agent/team",
+        permanent: true,
+      },
+    ];
+  },
+
   async headers() {
     return [
       {
