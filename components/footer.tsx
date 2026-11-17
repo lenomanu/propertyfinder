@@ -11,6 +11,7 @@ import {
   contactPhoneDisplay,
   contactPhoneHref,
 } from "@/lib/site/business";
+import { buildCalendarYear } from "@/lib/site/build-calendar-year";
 
 const exploreLinks = [
   { title: "Homes for sale", href: "/properties-for-sale" },
@@ -121,7 +122,7 @@ const Footer = () => {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-primary-foreground/15 pt-8 text-sm text-primary-foreground/70 sm:flex-row">
           <p>
-            &copy; {new Date().getFullYear()}{" "}
+            &copy; {buildCalendarYear()}{" "}
             <Link
               href="/"
               className="font-medium text-primary-foreground hover:underline"

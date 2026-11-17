@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { getPublicImageUrl } from "@/lib/cloudflare/public-image-url";
 import type { PropertyDetail } from "@/lib/properties/property";
 import { pageMetadata } from "@/lib/seo/metadata";
+import { propertyShareImageUrl } from "@/lib/seo/property-share-image";
 import { ensureMetaDescription, truncateTitle } from "@/lib/seo/text";
 
 const PROPERTY_TYPE_LABELS: Record<string, string> = {
@@ -66,7 +67,8 @@ export function propertyPageMetadata(
       `${typeLabel} ${listing} in ${location || "Kenya"} at ${price}. View photos, features, and contact the listing agent on Property Team.`
   );
 
-  const image = primaryPropertyImageUrl(property);
+  const hasPhoto = Boolean(primaryPropertyImageUrl(property));
+  const image = hasPhoto ? propertyShareImageUrl(slug) : null;
 
   return pageMetadata({
     title,

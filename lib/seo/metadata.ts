@@ -60,6 +60,8 @@ export function pageMetadata({
         {
           url: ogImage,
           alt: seoTitle,
+          width: 1200,
+          height: 630,
         },
       ],
     },

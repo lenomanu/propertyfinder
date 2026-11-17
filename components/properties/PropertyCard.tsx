@@ -4,8 +4,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ImageIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 import type { PropertyResult } from "@/lib/properties/property.types";
+import { buildCalendarYear } from "@/lib/site/build-calendar-year";
+import { cn } from "@/lib/utils";
 
 type PropertyCardProps = {
   property: PropertyResult;
@@ -264,7 +265,7 @@ export default function PropertyCard({
     maximumFractionDigits: 0,
   }).format(property.price);
 
-  const currentYear = new Date().getFullYear();
+  const currentYear = buildCalendarYear();
   const isNewConstruction =
     details?.year_built != null && details.year_built >= currentYear - 1;
 

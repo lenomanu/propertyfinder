@@ -3,15 +3,56 @@
 import { useState } from "react";
 import { Check, Share2 } from "lucide-react";
 
-export default function PropertyShareButton({ title }: { title: string }) {
+type PropertyShareButtonProps = {
+  title: string;
+  /** Same-origin URL that returns the listing’s primary photo. */
+  shareImageUrl?: string;
+};
+
+export default function PropertyShareButton({
+  title,
+  shareImageUrl,
+}: PropertyShareButtonProps) {
   const [copied, setCopied] = useState(false);
+
+  async function loadShareImageFile(): Promise<File | null> {
+    if (!shareImageUrl) return null;
+
+    try {
+      const response = await fetch(shareImageUrl);
+      if (!response.ok) return null;
+
+      const blob = await response.blob();
+      const type = blob.type || "image/jpeg";
+      const extension = type.includes("png")
+        ? "png"
+        : type.includes("webp")
+          ? "webp"
+          : "jpg";
+
+      return new File([blob], `property.${extension}`, { type });
+    } catch {
+      return null;
+    }
+  }
 
   async function shareProperty() {
     const url = window.location.href;
+    const text = title;
+    const imageFile = await loadShareImageFile();
 
     if (navigator.share) {
       try {
-        await navigator.share({ title, url });
+        const shareData: ShareData = { title, text, url };
+        if (
+          imageFile &&
+          typeof navigator.canShare === "function" &&
+          navigator.canShare({ ...shareData, files: [imageFile] })
+        ) {
+          await navigator.share({ ...shareData, files: [imageFile] });
+        } else {
+          await navigator.share(shareData);
+        }
       } catch (error) {
         if (error instanceof Error && error.name !== "AbortError") {
           console.error("Unable to share property:", error);

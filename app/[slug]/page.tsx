@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
+import { connection } from "next/server";
 import { notFound } from "next/navigation";
 import {
   Bath,
@@ -30,10 +31,13 @@ import {
   primaryPropertyImageUrl,
   propertyPageMetadata,
 } from "@/lib/seo/property-page-metadata";
+import { propertyShareImagePath } from "@/lib/seo/property-share-image";
 
 type Props = {
   params: Promise<{ slug: string }>;
 };
+
+export const instant = false;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -83,23 +87,8 @@ function labelFor(value: string) {
   return value.replace(/-/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-export default function PropertyDetailsPage({ params }: Props) {
-  return (
-    <Suspense
-      fallback={
-        <main className="container mx-auto space-y-6 px-4 py-6 sm:px-6 lg:px-8">
-          <div className="aspect-[4/3] animate-pulse rounded-xl bg-muted" />
-          <div className="h-8 w-2/3 animate-pulse rounded bg-muted" />
-          <div className="h-4 w-1/3 animate-pulse rounded bg-muted" />
-        </main>
-      }
-    >
-      <PropertyDetails params={params} />
-    </Suspense>
-  );
-}
-
-async function PropertyDetails({ params }: Props) {
+export default async function PropertyDetailsPage({ params }: Props) {
+  await connection();
   const { slug } = await params;
   const property = await getPropertyBySlug(slug);
 
@@ -207,7 +196,10 @@ async function PropertyDetails({ params }: Props) {
                 )}
               </div>
               <div className="flex shrink-0 flex-col items-start gap-3 sm:items-end">
-                <PropertyShareButton title={property.title} />
+                <PropertyShareButton
+                  title={property.title}
+                  shareImageUrl={propertyShareImagePath(slug)}
+                />
                 <div className="sm:text-right">
                   <p className="text-3xl font-semibold tracking-tight">
                     {formatPrice(property.price, property.currency)}

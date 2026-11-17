@@ -1,7 +1,13 @@
+const buildCalendarYear = String(new Date().getFullYear());
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   cacheComponents: true,
   output: "standalone",
+
+  env: {
+    NEXT_PUBLIC_BUILD_YEAR: buildCalendarYear,
+  },
 
   poweredByHeader: false,
 
