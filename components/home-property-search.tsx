@@ -94,7 +94,12 @@ export default function HomePropertySearch({ localities }: { localities: string[
           </button>
         ))}
       </div>
-      <form onSubmit={submitSearch} className="p-4 sm:p-7">
+      <form
+        onSubmit={submitSearch}
+        className="p-4 sm:p-7"
+        data-toolname="search_properties"
+        data-tooldescription="Search Property Team for homes, apartments, and land for sale or rent in Kenya."
+      >
         <label htmlFor="home-property-search" className="mb-3 block text-sm font-semibold text-white">
         Search property in Kenya
         </label>

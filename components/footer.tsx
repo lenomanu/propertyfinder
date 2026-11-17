@@ -8,6 +8,9 @@ const footerLinks = [
   { title: "Sold property", href: "/properties-sold" },
   { title: "Find an agent", href: "/find-agent" },
   { title: "List with us", href: "/sell" },
+  { title: "About", href: "/about" },
+  { title: "Contact", href: "/contact" },
+  { title: "Terms", href: "/terms" },
 ];
 
 const Footer = () => {

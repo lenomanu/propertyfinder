@@ -8,6 +8,7 @@ import { Suspense } from "react";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
 
+import { AgentWebMcpTools } from "@/components/agent-ready/web-mcp-tools";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import NavBarSkeleton from "@/components/nav-bar-skeleton";
@@ -37,6 +38,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <AgentWebMcpTools />
           <NuqsAdapter>
             <Suspense fallback={<NavBarSkeleton />}>
               <Navbar />

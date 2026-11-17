@@ -2,6 +2,20 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { hasEnvVars } from "../utils";
 
+function requiresAuth(pathname: string): boolean {
+  const protectedPrefixes = [
+    "/admin",
+    "/agent",
+    "/apply",
+    "/property",
+    "/protected",
+    "/debug",
+  ];
+  return protectedPrefixes.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
+}
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -48,49 +62,12 @@ export async function updateSession(request: NextRequest) {
   const user = data?.claims;
 
   const pathname = request.nextUrl.pathname;
-  const [segment] = pathname.split("/").filter(Boolean);
-  const reservedSegments = new Set([
-    "admin",
-    "agent",
-    "apply",
-    "auth",
-    "debug",
-    "login",
-    "property",
-    "protected",
-  ]);
-  const isPropertySlug = Boolean(segment) && !pathname.slice(1).includes("/") && !reservedSegments.has(segment);
-  const isPublicPath =
-    pathname === "/" ||
-    pathname.startsWith("/login") ||
-    pathname.startsWith("/auth") ||
-    pathname.startsWith("/properties-for-sale") ||
-    pathname.startsWith("/properties-for-rent") ||
-    pathname.startsWith("/properties-sold") ||
-    pathname.startsWith("/find-agent") ||
-    pathname.startsWith("/sell") ||
-    pathname.startsWith("/agency/") ||
-    isPropertySlug;
 
-  if (!user && !isPublicPath) {
-    // no user, potentially respond by redirecting the user to the login page
+  if (!user && requiresAuth(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     return NextResponse.redirect(url);
   }
-
-  // IMPORTANT: You *must* return the supabaseResponse object as it is.
-  // If you're creating a new response object with NextResponse.next() make sure to:
-  // 1. Pass the request in it, like so:
-  //    const myNewResponse = NextResponse.next({ request })
-  // 2. Copy over the cookies, like so:
-  //    myNewResponse.cookies.setAll(supabaseResponse.cookies.getAll())
-  // 3. Change the myNewResponse object to fit your needs, but avoid changing
-  //    the cookies!
-  // 4. Finally:
-  //    return myNewResponse
-  // If this is not done, you may be causing the browser and server to go out
-  // of sync and terminate the user's session prematurely!
 
   return supabaseResponse;
 }

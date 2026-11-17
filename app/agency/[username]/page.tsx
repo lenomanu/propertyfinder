@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const agency = await getApprovedAgencyByUsername(username);
 
   if (!agency) {
-    return { title: "Agency not found" };
+    notFound();
   }
 
   const location = [agency.town, agency.location].filter(Boolean).join(", ");

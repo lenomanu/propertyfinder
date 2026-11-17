@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const property = await getPropertyBySlug(slug);
   if (!property) {
-    return { title: "Property not found" };
+    notFound();
   }
   return propertyPageMetadata(property, slug);
 }
