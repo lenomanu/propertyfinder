@@ -10,8 +10,17 @@ export function contactEmail() {
 
 export function contactPhone() {
   return (
-    process.env.NEXT_PUBLIC_CONTACT_PHONE?.trim() || "+254700000000"
+    process.env.NEXT_PUBLIC_CONTACT_PHONE?.trim() || "+61450968182"
   );
+}
+
+/** Display-friendly phone label (e.g. for international callers). */
+export function contactPhoneDisplay() {
+  const phone = contactPhone();
+  if (phone.startsWith("+61")) {
+    return `${phone} (Australia)`;
+  }
+  return phone;
 }
 
 export function contactPhoneHref() {

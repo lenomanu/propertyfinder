@@ -4,7 +4,6 @@ import { Suspense } from "react";
 import HomePropertySearch from "@/components/home-property-search";
 import { getPropertyLocalities } from "@/lib/properties/property-search";
 import CompanyLinks from "@/components/agent-ready/company-links";
-import SiteContactBar from "@/components/agent-ready/site-contact-bar";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { buildHomepageJsonLd } from "@/lib/seo/agent-schema";
 import { pageMetadata } from "@/lib/seo/metadata";
@@ -30,7 +29,6 @@ export default function Home() {
   return (
     <main>
       <JsonLd data={buildHomepageJsonLd()} />
-      <SiteContactBar />
       <Suspense fallback={<HomeFallback />}>
         <HomeContent />
       </Suspense>
