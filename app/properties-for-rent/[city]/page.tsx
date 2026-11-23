@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import CityPropertiesListing from "@/components/properties/CityPropertiesListing";
+import { redirectToCanonicalCityRoute } from "@/lib/seo/city-route";
 import { listingSearchMetadata } from "@/lib/seo/listing-search-metadata";
-import { cityTitleFromSlug } from "@/lib/seo/urls";
+import { cityPathSegmentFromRouteParam, cityTitleFromSlug } from "@/lib/seo/urls";
 
 type Props = {
   params: Promise<{ city: string }>;
@@ -13,17 +14,19 @@ export async function generateMetadata({
   searchParams,
 }: Props): Promise<Metadata> {
   const { city } = await params;
+  const slug = cityPathSegmentFromRouteParam(city);
   const name = cityTitleFromSlug(city);
 
   return listingSearchMetadata(
     searchParams,
     "rent",
-    `/properties-for-rent/${encodeURIComponent(city)}`,
+    `/properties-for-rent/${slug}`,
     name
   );
 }
 
 export default async function CityPage({ params, searchParams }: Props) {
   const { city } = await params;
+  redirectToCanonicalCityRoute("/properties-for-rent", city);
   return <CityPropertiesListing city={city} searchParams={searchParams} listingType="rent" />;
 }

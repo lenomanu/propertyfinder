@@ -1,5 +1,7 @@
 import "server-only";
 
+import type { SupabaseClient } from "@supabase/supabase-js";
+
 import { createClient } from "@/lib/supabase/server";
 import { localityToCitySlug } from "@/lib/seo/urls";
 
@@ -29,11 +31,71 @@ type SitemapPropertyRow = {
   updated_at: string | null;
 };
 
+const SITEMAP_PROPERTY_PAGE_SIZE = 1000;
+
+/** Prefer the SQL function when present; otherwise use the same public read path as property search. */
+async function loadSitemapPropertyRows(
+  supabase: SupabaseClient
+): Promise<SitemapPropertyRow[]> {
+  const rpc = await supabase.rpc("get_public_sitemap_properties");
+
+  if (!rpc.error && rpc.data) {
+    return rpc.data as SitemapPropertyRow[];
+  }
+
+  const rows: SitemapPropertyRow[] = [];
+  let from = 0;
+
+  while (true) {
+    const { data, error } = await supabase
+      .from("properties")
+      .select("slug, locality, status, updated_at")
+      .in("status", ["approved", "sold"])
+      .not("slug", "is", null)
+      .order("updated_at", { ascending: false })
+      .range(from, from + SITEMAP_PROPERTY_PAGE_SIZE - 1);
+
+    if (error) {
+      console.error(
+        "[sitemap] Could not load listing URLs:",
+        error.message,
+        rpc.error
+          ? `(RPC also failed: ${rpc.error.message})`
+          : ""
+      );
+      break;
+    }
+
+    const batch = data ?? [];
+    for (const row of batch) {
+      const slug = row.slug?.trim();
+      if (!slug) continue;
+      rows.push({
+        slug,
+        locality: row.locality,
+        property_status: row.status,
+        updated_at: row.updated_at,
+      });
+    }
+
+    if (batch.length < SITEMAP_PROPERTY_PAGE_SIZE) break;
+    from += SITEMAP_PROPERTY_PAGE_SIZE;
+  }
+
+  if (rows.length > 0 && rpc.error) {
+    console.warn(
+      "[sitemap] get_public_sitemap_properties missing or failed; built URLs from properties select."
+    );
+  }
+
+  return rows;
+}
+
 export async function collectSitemapUrls(): Promise<SitemapUrl[]> {
   const supabase = await createClient();
 
-  const [propertiesResult, agenciesResult] = await Promise.all([
-    supabase.rpc("get_public_sitemap_properties"),
+  const [propertyRows, agenciesResult] = await Promise.all([
+    loadSitemapPropertyRows(supabase),
     supabase
       .from("agencies")
       .select("username, updated_at")
@@ -42,16 +104,23 @@ export async function collectSitemapUrls(): Promise<SitemapUrl[]> {
       .limit(10000),
   ]);
 
-  if (propertiesResult.error) {
-    console.error(
-      "[sitemap] get_public_sitemap_properties failed:",
-      propertiesResult.error.message,
-      "— apply supabase/migrations/20261113100000_public_sitemap_properties.sql in the Supabase SQL editor."
-    );
+  const urlByPath = new Map<string, SitemapUrl>();
+  for (const route of STATIC_ROUTES) {
+    urlByPath.set(route.path, route);
   }
 
-  const urls: SitemapUrl[] = [...STATIC_ROUTES];
-  const rows = (propertiesResult.data ?? []) as SitemapPropertyRow[];
+  const rows = propertyRows;
+
+  function addUrl(entry: SitemapUrl) {
+    const existing = urlByPath.get(entry.path);
+    if (existing?.lastModified && entry.lastModified) {
+      if (entry.lastModified > existing.lastModified) {
+        urlByPath.set(entry.path, entry);
+      }
+      return;
+    }
+    urlByPath.set(entry.path, entry);
+  }
 
   const approvedLocalities = new Set<string>();
   const soldLocalities = new Set<string>();
@@ -76,12 +145,12 @@ export async function collectSitemapUrls(): Promise<SitemapUrl[]> {
 
   for (const locality of approvedLocalities) {
     const slug = localityToCitySlug(locality);
-    urls.push({
+    addUrl({
       path: `/properties-for-sale/${slug}`,
       changeFrequency: "weekly",
       priority: 0.75,
     });
-    urls.push({
+    addUrl({
       path: `/properties-for-rent/${slug}`,
       changeFrequency: "weekly",
       priority: 0.75,
@@ -89,7 +158,7 @@ export async function collectSitemapUrls(): Promise<SitemapUrl[]> {
   }
 
   for (const locality of soldLocalities) {
-    urls.push({
+    addUrl({
       path: `/properties-sold/${localityToCitySlug(locality)}`,
       changeFrequency: "weekly",
       priority: 0.75,
@@ -97,7 +166,7 @@ export async function collectSitemapUrls(): Promise<SitemapUrl[]> {
   }
 
   for (const [path, lastModified] of propertyPaths) {
-    urls.push({
+    addUrl({
       path,
       lastModified,
       changeFrequency: "weekly",
@@ -108,7 +177,7 @@ export async function collectSitemapUrls(): Promise<SitemapUrl[]> {
   for (const row of agenciesResult.data ?? []) {
     const username = row.username?.trim();
     if (!username) continue;
-    urls.push({
+    addUrl({
       path: `/agency/${encodeURIComponent(username)}`,
       lastModified: row.updated_at ? new Date(row.updated_at) : undefined,
       changeFrequency: "weekly",
@@ -116,5 +185,5 @@ export async function collectSitemapUrls(): Promise<SitemapUrl[]> {
     });
   }
 
-  return urls;
+  return [...urlByPath.values()];
 }

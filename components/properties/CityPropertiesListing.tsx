@@ -5,6 +5,11 @@ import {
   loadPropertySearchParamsFor,
   type ListingType,
 } from "@/lib/properties/property-search-params";
+import {
+  cityPathSegmentFromRouteParam,
+  cityTitleFromSlug,
+  localityPatternFromCityParam,
+} from "@/lib/seo/urls";
 
 type Props = {
   city: string;
@@ -13,23 +18,20 @@ type Props = {
   sold?: boolean;
 };
 
-function formatCity(slug: string) {
-  return slug
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
 export default async function CityPropertiesListing({
   city,
   searchParams,
   listingType,
   sold = false,
 }: Props) {
-  const cityName = formatCity(city);
+  const citySlug = cityPathSegmentFromRouteParam(city);
+  const cityName = cityTitleFromSlug(city);
   const rawParams = await searchParams;
   const filters = await loadPropertySearchParamsFor(
-    Promise.resolve({ ...rawParams, locality: cityName }),
+    Promise.resolve({
+      ...rawParams,
+      locality: localityPatternFromCityParam(city),
+    }),
     listingType,
   );
   const { page, pageSize, ...searchFilters } = filters;
@@ -42,9 +44,9 @@ export default async function CityPropertiesListing({
     ? `Sold property in ${cityName}`
     : `Property for ${listingType === "rent" ? "rent" : "sale"} in ${cityName}`;
 
-  const siblingRentHref = `/properties-for-rent/${encodeURIComponent(city)}`;
-  const siblingSaleHref = `/properties-for-sale/${encodeURIComponent(city)}`;
-  const siblingSoldHref = `/properties-sold/${encodeURIComponent(city)}`;
+  const siblingRentHref = `/properties-for-rent/${citySlug}`;
+  const siblingSaleHref = `/properties-for-sale/${citySlug}`;
+  const siblingSoldHref = `/properties-sold/${citySlug}`;
 
   return (
     <main className="container mx-auto min-h-[55vh] space-y-6 px-4 py-10 sm:px-6 lg:px-8">

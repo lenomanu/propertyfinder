@@ -32,6 +32,7 @@ import {
   propertyPageMetadata,
 } from "@/lib/seo/property-page-metadata";
 import { propertyShareImagePath } from "@/lib/seo/property-share-image";
+import { localityListingPath } from "@/lib/seo/urls";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -152,6 +153,12 @@ export default async function PropertyDetailsPage({ params }: Props) {
   const location = [property.locality, property.nearest_town, property.county]
     .filter(Boolean)
     .join(", ");
+  const localityListingHref = property.locality
+    ? localityListingPath(
+        property.locality,
+        isSold ? "sold" : property.listing_type === "rent" ? "rent" : "sale"
+      )
+    : null;
   const propertyUrl = new URL(`/${encodeURIComponent(slug)}`, getURL()).toString();
   const primaryImage = primaryPropertyImageUrl(property);
 
@@ -171,37 +178,53 @@ export default async function PropertyDetailsPage({ params }: Props) {
           primaryImageUrl: primaryImage,
         })}
       />
-      <div className="container mx-auto px-4 pb-6 pt-2 sm:px-6 lg:px-8">
-        <div className="p-4 pt-2 sm:px-6 sm:pb-6 sm:pt-3 lg:px-8 lg:pb-8 lg:pt-4">
+      <div className="mx-auto w-full max-w-7xl px-3 pb-10 pt-2 sm:px-6 lg:px-8">
+        <div className="-mx-3 sm:mx-0">
           <PropertyGallery
             images={images}
             title={property.title}
             badge={isSold ? "Sold" : listingLabel}
             sold={isSold}
           />
+        </div>
 
-      <div className="mt-8">
-        <div className="min-w-0 space-y-8">
+        <div className="mt-5 min-w-0 space-y-6 sm:mt-8 sm:space-y-8">
           <div>
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div className="min-w-0">
-                <h1 className="max-w-xl text-3xl font-semibold tracking-tight">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-2xl font-semibold tracking-tight sm:max-w-xl sm:text-3xl">
                   {property.title}
                 </h1>
                 {location && (
-                  <p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="h-4 w-4 shrink-0" />
-                    {location}
+                  <p className="mt-3 flex flex-wrap items-center gap-x-1 gap-y-1 text-sm text-muted-foreground">
+                    <MapPin className="h-4 w-4 shrink-0" aria-hidden />
+                    {property.locality && localityListingHref ? (
+                      <>
+                        <Link href={localityListingHref} className="hover:text-foreground hover:underline">
+                          {property.locality}
+                        </Link>
+                        {(property.nearest_town || property.county) && (
+                          <span>
+                            {", "}
+                            {[property.nearest_town, property.county]
+                              .filter(Boolean)
+                              .join(", ")}
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      <span>{location}</span>
+                    )}
                   </p>
                 )}
               </div>
-              <div className="flex shrink-0 flex-col items-start gap-3 sm:items-end">
+              <div className="flex w-full shrink-0 items-center justify-between gap-3 border-b border-border/60 pb-4 sm:w-auto sm:flex-col sm:items-end sm:border-0 sm:pb-0">
                 <PropertyShareButton
                   title={property.title}
                   shareImageUrl={propertyShareImagePath(slug)}
                 />
-                <div className="sm:text-right">
-                  <p className="text-3xl font-semibold tracking-tight">
+                <div className="text-right sm:text-right">
+                  <p className="text-2xl font-semibold tracking-tight sm:text-3xl">
                     {formatPrice(property.price, property.currency)}
                   </p>
                   {property.price_period && property.price_period !== "once" && (
@@ -214,7 +237,7 @@ export default async function PropertyDetailsPage({ params }: Props) {
             </div>
 
             {headlineFacts.length > 0 && (
-              <dl className="mt-6 grid grid-cols-2 gap-4 border-y py-5 sm:grid-cols-3 sm:gap-6">
+              <dl className="mt-4 grid grid-cols-2 gap-3 border-y py-4 sm:mt-6 sm:grid-cols-3 sm:gap-6 sm:py-5">
                 {headlineFacts.map((fact) => {
                   const Icon = fact.label === "Bedrooms"
                     ? BedDouble
@@ -249,7 +272,7 @@ export default async function PropertyDetailsPage({ params }: Props) {
             )}
           </div>
 
-          <div className="grid items-start gap-x-8 gap-y-6 md:grid-cols-[minmax(0,1fr)_18rem] lg:grid-cols-[minmax(0,1fr)_20rem]">
+          <div className="grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_18rem] md:gap-x-8 md:gap-y-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
             {property.listing_contact && (
               <div className="self-start md:col-start-2 md:row-start-1">
                 <ListingContactCard
@@ -288,9 +311,6 @@ export default async function PropertyDetailsPage({ params }: Props) {
             />
           </Suspense>
         </div>
-
-      </div>
-        </div>
       </div>
     </main>
   );
@@ -314,7 +334,7 @@ function ListingContactCard({
     : null;
 
   return (
-    <aside className="flex min-w-0 flex-col gap-4 rounded-xl border bg-card p-4">
+    <aside className="flex min-w-0 flex-col gap-4 rounded-xl border bg-card p-3 sm:p-4">
       <div className="min-w-0 space-y-1">
         <p className="text-xs text-muted-foreground">Listed by</p>
         {contact.username ? (
@@ -333,10 +353,10 @@ function ListingContactCard({
           </a>
         )}
         {contact.email && (
-          <a href={`mailto:${contact.email}`} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:underline">
-            <Mail className="h-3.5 w-3.5 shrink-0" />
+          <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <Mail className="h-3.5 w-3.5 shrink-0" aria-hidden />
             <span className="break-all">{contact.email}</span>
-          </a>
+          </p>
         )}
         {contact.location && (
           <p className="flex items-center gap-1.5 text-sm text-muted-foreground">

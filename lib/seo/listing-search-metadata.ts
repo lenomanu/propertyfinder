@@ -6,6 +6,8 @@ import {
   type ListingType,
   type PropertySearchFilters,
 } from "@/lib/properties/property-search-params";
+import type { Metadata } from "next";
+
 import { pageMetadata } from "@/lib/seo/metadata";
 import { ensureMetaDescription, truncateTitle } from "@/lib/seo/text";
 
@@ -99,6 +101,11 @@ function propertyTitleLead(propertyType: string): string {
 function isLandType(propertyType: string) {
   return propertyType === "land" || propertyType === "plot";
 }
+
+const filteredListingRobots: Metadata["robots"] = {
+  index: false,
+  follow: true,
+};
 
 function hasFilterQuery(filters: PropertySearchFilters, context: ListingSeoContext): boolean {
   const fixed = context.fixedLocality?.trim();
@@ -359,17 +366,21 @@ export async function listingSearchMetadata(
     defaultListingType
   );
 
-  const seo = buildListingSearchSeo(filters, {
+  const context: ListingSeoContext = {
     basePath,
     listingType: defaultListingType,
     fixedLocality,
     sold,
-  });
+  };
+
+  const seo = buildListingSearchSeo(filters, context);
+  const filtered = hasFilterQuery(filters, context);
 
   return pageMetadata({
     title: seo.title,
     description: seo.description,
-    path: seo.pathWithQuery,
+    path: filtered ? basePath : seo.pathWithQuery,
     keywords: seo.keywords,
+    robots: filtered ? filteredListingRobots : undefined,
   });
 }

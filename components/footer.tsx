@@ -89,7 +89,7 @@ const Footer = () => {
             </p>
             <ul className="mt-5 space-y-3">
               <li>
-                <a
+                <Link
                   href={contactEmailHref()}
                   className="group flex items-center gap-3 text-sm text-primary-foreground transition-opacity hover:opacity-90"
                 >
@@ -97,7 +97,7 @@ const Footer = () => {
                   <span className="min-w-0 break-all group-hover:underline">
                     {contactEmail()}
                   </span>
-                </a>
+                </Link>
               </li>
               <li>
                 <a

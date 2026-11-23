@@ -40,7 +40,7 @@ export default function PropertyGallery({
 
   if (count === 0) {
     return (
-      <div className="flex aspect-[16/9] items-center justify-center rounded-2xl bg-muted">
+      <div className="flex aspect-[16/9] items-center justify-center rounded-none bg-muted sm:rounded-2xl">
         <ImageIcon className="h-12 w-12 text-muted-foreground" />
       </div>
     );
@@ -48,7 +48,7 @@ export default function PropertyGallery({
 
   return (
     <div>
-      <div className="relative aspect-[16/9] overflow-hidden rounded-2xl bg-muted">
+      <div className="relative aspect-[16/9] overflow-hidden rounded-none bg-muted sm:rounded-2xl">
         <img
           src={current}
           alt={title}
@@ -59,8 +59,8 @@ export default function PropertyGallery({
           <span
             className={
               sold
-                ? "absolute left-4 top-4 rounded-full bg-orange-500 px-3 py-1 text-sm font-medium text-white shadow-sm"
-                : "absolute left-4 top-4 rounded-full bg-white px-3 py-1 text-sm font-medium shadow-sm"
+                ? "absolute left-3 top-3 rounded-full bg-orange-500 px-2.5 py-1 text-xs font-medium text-white shadow-sm sm:left-4 sm:top-4 sm:px-3 sm:text-sm"
+                : "absolute left-3 top-3 rounded-full bg-white px-2.5 py-1 text-xs font-medium shadow-sm sm:left-4 sm:top-4 sm:px-3 sm:text-sm"
             }
           >
             {badge}
@@ -73,7 +73,7 @@ export default function PropertyGallery({
               type="button"
               onClick={showPrevious}
               aria-label="Previous photo"
-              className="absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md"
+              className="absolute left-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md sm:left-4 sm:h-10 sm:w-10"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
@@ -81,21 +81,21 @@ export default function PropertyGallery({
               type="button"
               onClick={showNext}
               aria-label="Next photo"
-              className="absolute right-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md"
+              className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md sm:right-4 sm:h-10 sm:w-10"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
           </>
         )}
 
-        <span className="absolute bottom-4 left-4 rounded-full bg-black/70 px-2.5 py-1 text-xs font-medium text-white">
+        <span className="absolute bottom-3 left-3 rounded-full bg-black/70 px-2 py-0.5 text-xs font-medium text-white sm:bottom-4 sm:left-4 sm:px-2.5 sm:py-1">
           {index + 1}/{count}
         </span>
 
         <button
           type="button"
           onClick={() => setShowAll(true)}
-          className="absolute bottom-4 right-4 flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-sm font-medium shadow-md"
+          className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-xs font-medium shadow-md sm:bottom-4 sm:right-4 sm:gap-2 sm:px-3 sm:py-1.5 sm:text-sm"
         >
           <Images className="h-4 w-4" />
           View all photos
@@ -103,7 +103,7 @@ export default function PropertyGallery({
       </div>
 
       {count > 1 && (
-        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+        <div className="mt-2 flex gap-2 overflow-x-auto px-3 pb-1 sm:mt-3 sm:px-0">
           {images.map((url, imageIndex) => (
             <button
               key={`${url}-${imageIndex}`}

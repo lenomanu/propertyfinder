@@ -7,6 +7,7 @@ import CompanyLinks from "@/components/agent-ready/company-links";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { buildHomepageJsonLd } from "@/lib/seo/agent-schema";
 import { pageMetadata } from "@/lib/seo/metadata";
+import { localityListingPath } from "@/lib/seo/urls";
 
 export const metadata: Metadata = pageMetadata({
   title: "Find Property in Kenya | Homes for Sale and Rent",
@@ -72,7 +73,7 @@ async function HomeContent() {
           title="Land for sale in popular locations"
           description="Browse land listings in locations with the most approved property listings."
           localities={popularLocalities}
-          hrefFor={(locality) => `/properties-for-sale/${encodeURIComponent(locality.toLowerCase().replace(/\s+/g, "-"))}?propertyType=land`}
+          hrefFor={(locality) => `${localityListingPath(locality, "sale")}?propertyType=land`}
           eyebrow="Land for sale in"
           action="Explore land"
         />
@@ -80,7 +81,7 @@ async function HomeContent() {
           title="Homes for sale in popular locations"
           description="Explore houses, apartments and villas available to buy."
           localities={popularLocalities}
-          hrefFor={(locality) => `/properties-for-sale/${encodeURIComponent(locality.toLowerCase().replace(/\s+/g, "-"))}?propertyType=home`}
+          hrefFor={(locality) => `${localityListingPath(locality, "sale")}?propertyType=home`}
           eyebrow="Homes for sale in"
           action="Explore homes"
         />
@@ -88,7 +89,7 @@ async function HomeContent() {
           title="Houses for rent in popular locations"
           description="Find houses to rent in the locations with the most approved listings."
           localities={popularLocalities}
-          hrefFor={(locality) => `/properties-for-rent/${encodeURIComponent(locality.toLowerCase().replace(/\s+/g, "-"))}?propertyType=house`}
+          hrefFor={(locality) => `${localityListingPath(locality, "rent")}?propertyType=house`}
           eyebrow="Houses for rent in"
           action="Explore houses"
         />

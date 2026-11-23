@@ -7,7 +7,6 @@ import {
   BUSINESS_ADDRESS,
   BUSINESS_NAME,
   contactEmail,
-  contactEmailHref,
   contactPhoneDisplay,
   contactPhoneHref,
 } from "@/lib/site/business";
@@ -60,12 +59,11 @@ export default function ContactPage() {
               applicable.
             </dd>
           </div>
-          <div>
+          <div id="email">
             <dt className="font-medium">Email</dt>
-            <dd className="mt-1">
-              <a href={contactEmailHref()} className="text-primary hover:underline">
-                {contactEmail()}
-              </a>
+            <dd className="mt-1 text-primary text-base font-medium">{contactEmail()}</dd>
+            <dd className="mt-1 text-muted-foreground">
+              Copy the address into your email app, or send a message with the form below.
             </dd>
           </div>
           <div>

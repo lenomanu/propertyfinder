@@ -27,7 +27,12 @@ export function contactPhoneHref() {
   return `tel:${contactPhone().replace(/[^\d+]/g, "")}`;
 }
 
+/** In-app link for the support email (avoids Cloudflare mailto → /cdn-cgi 404s in crawlers). */
 export function contactEmailHref() {
+  return "/contact#email";
+}
+
+export function contactEmailMailtoHref() {
   return `mailto:${contactEmail()}`;
 }
 

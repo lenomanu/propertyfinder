@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search as SearchIcon } from "lucide-react";
 
+import { localityToCitySlug } from "@/lib/seo/urls";
+
 type SearchMode = "sale" | "rent" | "sold";
 
 const modes: { id: SearchMode; label: string }[] = [
@@ -72,7 +74,7 @@ export default function HomePropertySearch({ localities }: { localities: string[
     if (params.size > 0) params.set("page", "1");
 
     const locationPath = parsed.location
-      ? `/${encodeURIComponent(parsed.location.toLowerCase().replace(/\s+/g, "-"))}`
+      ? `/${localityToCitySlug(parsed.location)}`
       : "";
     const searchParams = params.toString();
     router.push(`${route}${locationPath}${searchParams ? `?${searchParams}` : ""}`);

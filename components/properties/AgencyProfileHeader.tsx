@@ -81,13 +81,13 @@ export default function AgencyProfileHeader({
           </a>
         )}
         {agency.email && (
-          <a
-            href={`mailto:${agency.email}`}
-            className="inline-flex h-10 max-w-full items-center justify-center gap-2 rounded-lg border px-4 text-sm font-medium hover:bg-muted"
+          <div
+            className="inline-flex h-10 max-w-full items-center justify-center gap-2 rounded-lg border px-4 text-sm font-medium"
+            title="Copy this email address to contact the agency"
           >
-            <Mail className="size-4 shrink-0" />
+            <Mail className="size-4 shrink-0" aria-hidden />
             <span className="truncate">{agency.email}</span>
-          </a>
+          </div>
         )}
         {agency.links.map((link) => (
           <a

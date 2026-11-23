@@ -43,7 +43,7 @@ ${BUSINESS_NAME} is a Kenya-focused property marketplace. Approved agencies list
 `,
   contact: () => `# Contact ${BUSINESS_NAME}
 
-- Email: [${contactEmail()}](mailto:${contactEmail()})
+- Email: [${contactEmail()}](/contact#email)
 - Phone: [${contactPhone()}](tel:${contactPhone().replace(/[^\d+]/g, "")})
 
 Office: Nairobi, Kenya
