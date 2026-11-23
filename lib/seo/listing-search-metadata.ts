@@ -6,7 +6,6 @@ import {
   type ListingType,
   type PropertySearchFilters,
 } from "@/lib/properties/property-search-params";
-import type { Metadata } from "next";
 
 import { pageMetadata } from "@/lib/seo/metadata";
 import { ensureMetaDescription, truncateTitle } from "@/lib/seo/text";
